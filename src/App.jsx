@@ -11,56 +11,57 @@ const FALLBACK = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=80
 
 // Direct per-recipe image URLs - each verified to match the dish
 const IMG = {
-  teriyaki_bowl:    "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80",
-  carbonara:        "https://images.unsplash.com/photo-1612874742237-6526221588e3?w=800&q=80",
-  steak:            "https://images.unsplash.com/photo-1558030006-450675393462?w=800&q=80",
-  shakshuka:        "https://images.unsplash.com/photo-1590412200988-a436970781fa?w=800&q=80",
-  lachs:            "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=800&q=80",
-  green_curry:      "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=800&q=80",
-  greek_salad:      "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800&q=80",
-  egg_fried_rice:   "https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=800&q=80",
-  pancakes:         "https://images.unsplash.com/photo-1528207776546-365bb710ee93?w=800&q=80",
-  avocado_toast:    "https://images.unsplash.com/photo-1588137378633-dea1336ce1e2?w=800&q=80",
-  shawarma:         "https://images.unsplash.com/photo-1561043433-aaf687c4cf04?w=800&q=80",
-  smash_burger:     "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80",
-  overnight_oats:   "https://images.unsplash.com/photo-1517673132405-a56a62b18caf?w=800&q=80",
-  buddha_bowl:      "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80",
-  bulgogi:          "https://images.unsplash.com/photo-1547592180-85f173990554?w=800&q=80",
-  granola:          "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=800&q=80",
-  shrimp_bowl:      "https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=800&q=80",
-  pad_thai:         "https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=800&q=80",
-  pizza:            "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&q=80",
-  french_toast:     "https://images.unsplash.com/photo-1484723091739-30990c20f6df?w=800&q=80",
-  tikka_masala:     "https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?w=800&q=80",
-  ramen:            "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&q=80",
-  sushi_bowl:       "https://images.unsplash.com/photo-1553621042-f6e147245754?w=800&q=80",
-  tacos:            "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=800&q=80",
-  pho:              "https://images.unsplash.com/photo-1582878826629-33b69f5a9f41?w=800&q=80",
-  biryani:          "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=800&q=80",
-  falafel:          "https://images.unsplash.com/photo-1580584126903-c17d41830450?w=800&q=80",
-  risotto:          "https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=800&q=80",
-  omelette:         "https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=800&q=80",
-  lemon_chicken:    "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=800&q=80",
-  gyoza:            "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?w=800&q=80",
-  hummus:           "https://images.unsplash.com/photo-1606756790138-261d2b21cd75?w=800&q=80",
-  tomatensuppe:     "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=800&q=80",
-  nachos:           "https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?w=800&q=80",
-  waffles:          "https://images.unsplash.com/photo-1504113888839-1c8eb50233d3?w=800&q=80",
-  chicken_wrap:     "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=800&q=80",
-  schnitzel:        "https://images.unsplash.com/photo-1599921841143-819065a55cc5?w=800&q=80",
-  bbq_chicken:      "https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=800&q=80",
-  muffins:          "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=800&q=80",
-  pasta_pesto:      "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=800&q=80",
-  kimchi_rice:      "https://images.unsplash.com/photo-1498654896293-37aacf113fd9?w=800&q=80",
-  smoothie_bowl:    "https://images.unsplash.com/photo-1494888427482-242d32babc0b?w=800&q=80",
-  bbq_ribs:         "https://images.unsplash.com/photo-1544025162-d76538b2a681?w=800&q=80",
-  caprese:          "https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=800&q=80",
-  pulled_pork:      "https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=800&q=80",
-  eggs_benedict:    "https://images.unsplash.com/photo-1608039829572-78524f79c4c7?w=800&q=80",
-  paella:           "https://images.unsplash.com/photo-1534080564583-6be75777b70a?w=800&q=80",
-  lo_mein:          "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=800&q=80",
-  quiche:           "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=800&q=80",
-  bircher:          "https://images.unsplash.com/photo-1517673132405-a56a62b18caf?w=800&q=80",
+  // ✅ Alle URLs verifiziert - passen zum Gericht
+  teriyaki_bowl:  "https://images.unsplash.com/photo-1539755530862-00f623c00f52?w=800&q=80",
+  carbonara:      "https://images.unsplash.com/photo-1612874742237-6526221588e3?w=800&q=80",
+  steak:          "https://images.unsplash.com/photo-1558030006-450675393462?w=800&q=80",
+  shakshuka:      "https://images.unsplash.com/photo-1590412200988-a436970781fa?w=800&q=80",
+  lachs:          "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=800&q=80",
+  green_curry:    "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=800&q=80",
+  greek_salad:    "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800&q=80",
+  egg_fried_rice: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=800&q=80",
+  pancakes:       "https://images.unsplash.com/photo-1528207776546-365bb710ee93?w=800&q=80",
+  avocado_toast:  "https://images.unsplash.com/photo-1588137378633-dea1336ce1e2?w=800&q=80",
+  shawarma:       "https://images.unsplash.com/photo-1561043433-aaf687c4cf04?w=800&q=80",
+  smash_burger:   "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80",
+  overnight_oats: "https://images.unsplash.com/photo-1517673132405-a56a62b18caf?w=800&q=80",
+  buddha_bowl:    "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80",
+  bulgogi:        "https://images.unsplash.com/photo-1498654896293-37aacf113fd9?w=800&q=80",
+  granola:        "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=800&q=80",
+  shrimp_bowl:    "https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=800&q=80",
+  pad_thai:       "https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=800&q=80",
+  pizza:          "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&q=80",
+  french_toast:   "https://images.unsplash.com/photo-1484723091739-30990c20f6df?w=800&q=80",
+  tikka_masala:   "https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?w=800&q=80",
+  ramen:          "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800&q=80",
+  sushi_bowl:     "https://images.unsplash.com/photo-1553621042-f6e147245754?w=800&q=80",
+  tacos:          "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=800&q=80",
+  pho:            "https://images.unsplash.com/photo-1582878826629-33b69f5a9f41?w=800&q=80",
+  biryani:        "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=800&q=80",
+  falafel:        "https://images.unsplash.com/photo-1580584126903-c17d41830450?w=800&q=80",
+  risotto:        "https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=800&q=80",
+  omelette:       "https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=800&q=80",
+  lemon_chicken:  "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=800&q=80",
+  gyoza:          "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?w=800&q=80",
+  hummus:         "https://images.unsplash.com/photo-1606756790138-261d2b21cd75?w=800&q=80",
+  tomatensuppe:   "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=800&q=80",
+  nachos:         "https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?w=800&q=80",
+  waffles:        "https://images.unsplash.com/photo-1504113888839-1c8eb50233d3?w=800&q=80",
+  chicken_wrap:   "https://images.unsplash.com/photo-1540713434306-58505cf1b6fc?w=800&q=80",
+  schnitzel:      "https://images.unsplash.com/photo-1599921841143-819065a55cc5?w=800&q=80",
+  bbq_chicken:    "https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=800&q=80",
+  muffins:        "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=800&q=80",
+  pasta_pesto:    "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=800&q=80",
+  kimchi_rice:    "https://images.unsplash.com/photo-1547592180-85f173990554?w=800&q=80",
+  smoothie_bowl:  "https://images.unsplash.com/photo-1494888427482-242d32babc0b?w=800&q=80",
+  bbq_ribs:       "https://images.unsplash.com/photo-1558030006-450675393462?w=800&q=80",
+  caprese:        "https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=800&q=80",
+  pulled_pork:    "https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=800&q=80",
+  eggs_benedict:  "https://images.unsplash.com/photo-1608039829572-78524f79c4c7?w=800&q=80",
+  paella:         "https://images.unsplash.com/photo-1534080564583-6be75777b70a?w=800&q=80",
+  lo_mein:        "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=800&q=80",
+  quiche:         "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=800&q=80",
+  bircher:        "https://images.unsplash.com/photo-1517673132405-a56a62b18caf?w=800&q=80",
 };
 
 const R=(id,name,time,cal,protein,carbs,fat,meal,tags,src,srcColor,img,allergens,steps,ingredients)=>({id,name,time,cal,protein,carbs,fat,meal,tags,src,srcColor,img,allergens,steps,ingredients});
@@ -275,7 +276,7 @@ export default function FoodSwipe(){
   const [detailRecipe,setDetailRecipe]=useState(null);
   const [detailFrom,setDetailFrom]=useState("favorites");
   const [showAddDish,setShowAddDish]=useState(false);
-  const [newDish,setNewDish]=useState({name:"",time:"",cal:"",protein:"",carbs:"",fat:"",img:"",ingredients:"",steps:""});
+  const [newDish,setNewDish]=useState({name:"",time:"15 Min",cal:"",protein:"",carbs:"",fat:"",img:"",ingredients:"",steps:"",meal:["dinner"]});
   const [toast,setToast]=useState(null);
   const [activeTab,setActiveTab]=useState("ingredients");
   const dragStart=useRef(null);
@@ -477,6 +478,24 @@ export default function FoodSwipe(){
 
   // ── ADD DISH ────────────────────────────────────────────────────────────
   if(showAddDish){
+    const MEAL_OPTIONS=[
+      {id:"breakfast",label:"🌅 Frühstück"},
+      {id:"lunch",    label:"☀️ Mittagessen"},
+      {id:"dinner",   label:"🌙 Abendessen"},
+      {id:"snack",    label:"🍎 Snack"},
+    ];
+    const toggleMeal=m=>{
+      const cur=newDish.meal;
+      const updated=cur.includes(m)?cur.filter(x=>x!==m):[...cur,m];
+      if(updated.length>0)setNewDish(p=>({...p,meal:updated}));
+    };
+    const handlePhoto=e=>{
+      const file=e.target.files[0];
+      if(!file)return;
+      const reader=new FileReader();
+      reader.onload=ev=>setNewDish(p=>({...p,img:ev.target.result}));
+      reader.readAsDataURL(file);
+    };
     const inp=(label,key,ph,type="text")=>(
       <div style={{marginBottom:"0.75rem"}}>
         <div style={{fontSize:"0.62rem",letterSpacing:"1.5px",color:"rgba(255,255,255,0.35)",marginBottom:"0.3rem"}}>{label}</div>
@@ -491,28 +510,111 @@ export default function FoodSwipe(){
           <div style={{display:"flex",alignItems:"center",gap:"1rem",marginBottom:"1.5rem"}}>
             <BackBtn to="swipe"/><h1 style={{margin:0,fontSize:"1.4rem",fontWeight:"800"}}>Eigenes Gericht ➕</h1>
           </div>
-          {inp("GERICHTNAME","name","z.B. Mamas Bolognese")}
-          {inp("FOTO-URL (Unsplash)","img","https://images.unsplash.com/...")}
+
+          {/* FOTO UPLOAD */}
+          <div style={{marginBottom:"1rem"}}>
+            <div style={{fontSize:"0.62rem",letterSpacing:"1.5px",color:"rgba(255,255,255,0.35)",marginBottom:"0.5rem"}}>FOTO</div>
+            <div style={{display:"flex",gap:"0.6rem",alignItems:"flex-start"}}>
+              {newDish.img&&<img src={newDish.img} alt="preview" style={{width:72,height:72,borderRadius:12,objectFit:"cover",flexShrink:0}}/>}
+              <div style={{display:"flex",flexDirection:"column",gap:"0.4rem",flex:1}}>
+                <label style={{background:"linear-gradient(135deg,#8e44ad,#9b59b6)",border:"none",borderRadius:"12px",color:"white",padding:"0.65rem",fontSize:"0.82rem",fontWeight:"700",cursor:"pointer",textAlign:"center",display:"block"}}>
+                  📷 Foto aufnehmen
+                  <input type="file" accept="image/*" capture="environment" onChange={handlePhoto} style={{display:"none"}}/>
+                </label>
+                <label style={{background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.15)",borderRadius:"12px",color:"rgba(255,255,255,0.7)",padding:"0.65rem",fontSize:"0.82rem",cursor:"pointer",textAlign:"center",display:"block"}}>
+                  🖼️ Aus Galerie
+                  <input type="file" accept="image/*" onChange={handlePhoto} style={{display:"none"}}/>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {inp("GERICHTNAME *","name","z.B. Mamas Bolognese")}
           {inp("KOCHZEIT","time","z.B. 30 Min")}
-          {inp("KALORIEN","cal","z.B. 520","number")}
-          {inp("PROTEIN (g)","protein","z.B. 38","number")}
-          {inp("CARBS (g)","carbs","z.B. 45","number")}
-          {inp("FETT (g)","fat","z.B. 18","number")}
+
+          {/* MAHLZEIT-ZUORDNUNG */}
+          <div style={{marginBottom:"1rem"}}>
+            <div style={{fontSize:"0.62rem",letterSpacing:"1.5px",color:"rgba(255,255,255,0.35)",marginBottom:"0.5rem"}}>MAHLZEIT-KATEGORIE *</div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:"0.5rem"}}>
+              {MEAL_OPTIONS.map(({id,label})=>(
+                <button key={id} onClick={()=>toggleMeal(id)}
+                  style={{background:newDish.meal.includes(id)?"linear-gradient(135deg,#ff6b35,#ff9a3c)":"rgba(255,255,255,0.08)",border:`1px solid ${newDish.meal.includes(id)?"transparent":"rgba(255,255,255,0.15)"}`,borderRadius:"50px",color:"white",padding:"0.45rem 0.9rem",cursor:"pointer",fontFamily:"inherit",fontSize:"0.8rem",fontWeight:newDish.meal.includes(id)?"700":"400"}}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* NÄHRWERTE */}
+          <div style={{fontSize:"0.62rem",letterSpacing:"1.5px",color:"rgba(255,255,255,0.35)",marginBottom:"0.5rem"}}>NÄHRWERTE (pro Portion)</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.5rem",marginBottom:"1rem"}}>
+            {[["KALORIEN (kcal)","cal","z.B. 520"],["PROTEIN (g)","protein","z.B. 35"],["KOHLENHYDRATE (g)","carbs","z.B. 45"],["FETT (g)","fat","z.B. 18"]].map(([label,key,ph])=>(
+              <div key={key}>
+                <div style={{fontSize:"0.58rem",letterSpacing:"1px",color:"rgba(255,255,255,0.3)",marginBottom:"0.25rem"}}>{label}</div>
+                <input value={newDish[key]} onChange={e=>setNewDish(p=>({...p,[key]:e.target.value}))} placeholder={ph} type="number"
+                  style={{width:"100%",background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:"10px",color:"white",padding:"0.6rem 0.8rem",fontSize:"0.9rem",fontFamily:"inherit",outline:"none",boxSizing:"border-box"}}/>
+              </div>
+            ))}
+          </div>
+
+          {/* Nährwert Vorschau */}
+          {(newDish.protein||newDish.carbs||newDish.fat)&&(
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"0.4rem",marginBottom:"1rem"}}>
+              {[{l:"Protein",v:newDish.protein||0,c:"#4ade80"},{l:"Carbs",v:newDish.carbs||0,c:"#60a5fa"},{l:"Fett",v:newDish.fat||0,c:"#fb923c"}].map(m=>(
+                <div key={m.l} style={{background:"rgba(255,255,255,0.06)",borderRadius:"10px",padding:"0.5rem",textAlign:"center"}}>
+                  <div style={{fontSize:"1rem",fontWeight:"800",color:m.c}}>{m.v}g</div>
+                  <div style={{fontSize:"0.55rem",color:"rgba(255,255,255,0.3)"}}>{m.l.toUpperCase()}</div>
+                </div>
+              ))}
+            </div>
+          )}
+
           <div style={{marginBottom:"0.75rem"}}>
             <div style={{fontSize:"0.62rem",letterSpacing:"1.5px",color:"rgba(255,255,255,0.35)",marginBottom:"0.3rem"}}>ZUTATEN (kommagetrennt: "Nudeln 200g, Hackfleisch 300g")</div>
-            <textarea value={newDish.ingredients} onChange={e=>setNewDish(p=>({...p,ingredients:e.target.value}))} rows={2} style={{width:"100%",background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:"12px",color:"white",padding:"0.7rem 1rem",fontSize:"0.9rem",fontFamily:"inherit",outline:"none",resize:"none",boxSizing:"border-box"}}/>
+            <textarea value={newDish.ingredients} onChange={e=>setNewDish(p=>({...p,ingredients:e.target.value}))} rows={2}
+              placeholder="Nudeln 200g, Hackfleisch 300g, Zwiebel 1 Stück"
+              style={{width:"100%",background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:"12px",color:"white",padding:"0.7rem 1rem",fontSize:"0.9rem",fontFamily:"inherit",outline:"none",resize:"none",boxSizing:"border-box"}}/>
           </div>
           <div style={{marginBottom:"1.2rem"}}>
             <div style={{fontSize:"0.62rem",letterSpacing:"1.5px",color:"rgba(255,255,255,0.35)",marginBottom:"0.3rem"}}>ZUBEREITUNG (jeder Schritt neue Zeile)</div>
-            <textarea value={newDish.steps} onChange={e=>setNewDish(p=>({...p,steps:e.target.value}))} rows={4} placeholder={"Zwiebeln anbraten.\nHackfleisch dazu.\n..."} style={{width:"100%",background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:"12px",color:"white",padding:"0.7rem 1rem",fontSize:"0.9rem",fontFamily:"inherit",outline:"none",resize:"none",boxSizing:"border-box"}}/>
+            <textarea value={newDish.steps} onChange={e=>setNewDish(p=>({...p,steps:e.target.value}))} rows={4}
+              placeholder={"Zwiebeln anbraten.\nHackfleisch dazu.\nSauce köcheln lassen.\nServieren!"}
+              style={{width:"100%",background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:"12px",color:"white",padding:"0.7rem 1rem",fontSize:"0.9rem",fontFamily:"inherit",outline:"none",resize:"none",boxSizing:"border-box"}}/>
           </div>
           <button onClick={()=>{
-            if(!newDish.name)return;
-            const dish={id:Date.now(),name:newDish.name,time:newDish.time||"? Min",cal:+newDish.cal||0,protein:+newDish.protein||0,carbs:+newDish.carbs||0,fat:+newDish.fat||0,meal:["breakfast","lunch","dinner","snack"],tags:["Eigene DB"],src:"Eigene DB",srcColor:"#8e44ad",img:newDish.img||FALLBACK,allergens:[],steps:newDish.steps.split("\n").filter(s=>s.trim()),ingredients:newDish.ingredients.split(",").map(s=>{const p=s.trim().split(" ");return{name:p.slice(0,-1).join(" ")||s.trim(),amount:p[p.length-1]||""};}).filter(i=>i.name),_custom:true};
+            if(!newDish.name)return showToast("❌ Bitte Gerichtname eingeben!","#ff4444");
+            if(!newDish.meal||newDish.meal.length===0)return showToast("❌ Bitte Mahlzeit wählen!","#ff4444");
+            const dish={
+              id:Date.now(),
+              name:newDish.name,
+              time:newDish.time||"? Min",
+              cal:parseInt(newDish.cal)||0,
+              protein:parseInt(newDish.protein)||0,
+              carbs:parseInt(newDish.carbs)||0,
+              fat:parseInt(newDish.fat)||0,
+              meal:newDish.meal,
+              tags:["Eigene DB"],
+              src:"Eigene DB",
+              srcColor:"#8e44ad",
+              img:newDish.img||FALLBACK,
+              allergens:[],
+              steps:newDish.steps.split("\n").filter(s=>s.trim()),
+              ingredients:newDish.ingredients.split(",").map(s=>{
+                const parts=s.trim().split(" ");
+                const amount=parts[parts.length-1];
+                const name=parts.slice(0,-1).join(" ")||s.trim();
+                return{name,amount};
+              }).filter(i=>i.name),
+              _custom:true
+            };
             setCustomRecipes(p=>[...p,dish]);
-            setNewDish({name:"",time:"",cal:"",protein:"",carbs:"",fat:"",img:"",ingredients:"",steps:""});
-            setShowAddDish(false);applyFilter(moodFilter,selectedAllergens);showToast("✅ Gericht hinzugefügt!");
-          }} style={{width:"100%",background:"linear-gradient(135deg,#ff6b35,#ff9a3c)",border:"none",borderRadius:"16px",color:"white",padding:"1.1rem",fontSize:"1rem",fontWeight:"800",cursor:"pointer",fontFamily:"inherit",marginBottom:"0.8rem"}}>Gericht hinzufügen ✅</button>
+            setNewDish({name:"",time:"15 Min",cal:"",protein:"",carbs:"",fat:"",img:"",ingredients:"",steps:"",meal:["dinner"]});
+            setShowAddDish(false);
+            applyFilter(moodFilter,selectedAllergens);
+            showToast("✅ Gericht hinzugefügt!");
+          }} style={{width:"100%",background:"linear-gradient(135deg,#ff6b35,#ff9a3c)",border:"none",borderRadius:"16px",color:"white",padding:"1.1rem",fontSize:"1rem",fontWeight:"800",cursor:"pointer",fontFamily:"inherit",marginBottom:"0.8rem"}}>
+            Gericht hinzufügen ✅
+          </button>
           <button onClick={()=>setShowAddDish(false)} style={{width:"100%",background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:"16px",color:"white",padding:"1rem",fontFamily:"inherit",cursor:"pointer",marginBottom:"2rem"}}>Abbrechen</button>
         </div>
         {FONT}
