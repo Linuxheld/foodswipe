@@ -1,68 +1,39 @@
 #!/bin/bash
+# FoodSwipe Update Script v2
+# Verwendung: ./update.sh "Beschreibung der Änderung"
 
-# ╔════════════════════════════════════════╗
-# ║   FoodSwipe Update Script              ║
-# ║   Einfach ausführen: bash update.sh    ║
-# ╚════════════════════════════════════════╝
+FOODSWIPE_DIR="$HOME/foodswipe"
+FILES_DIR="$HOME/Downloads/files"
+MSG="${1:-Update}"
 
-DOWNLOADS=~/Downloads
-SRC=~/foodswipe/src
-PUBLIC=~/foodswipe/public
-ROOT=~/foodswipe
+echo "🍽️  FoodSwipe Updater v2"
+echo "================================"
+
+# Dateien kopieren
+echo "📁 Kopiere Dateien..."
+[ -f "$FILES_DIR/App.jsx" ]              && cp "$FILES_DIR/App.jsx"              "$FOODSWIPE_DIR/src/App.jsx"              && echo "  ✅ App.jsx"
+[ -f "$FILES_DIR/index.css" ]            && cp "$FILES_DIR/index.css"            "$FOODSWIPE_DIR/src/index.css"            && echo "  ✅ index.css"
+[ -f "$FILES_DIR/index.html" ]           && cp "$FILES_DIR/index.html"           "$FOODSWIPE_DIR/index.html"               && echo "  ✅ index.html"
+[ -f "$FILES_DIR/manifest.json" ]        && cp "$FILES_DIR/manifest.json"        "$FOODSWIPE_DIR/public/manifest.json"     && echo "  ✅ manifest.json"
+[ -f "$FILES_DIR/foodswipe-icon.svg" ]   && cp "$FILES_DIR/foodswipe-icon.svg"   "$FOODSWIPE_DIR/public/foodswipe-icon.svg" && echo "  ✅ icon.svg"
+[ -f "$FILES_DIR/foodswift-logo.png" ]   && cp "$FILES_DIR/foodswift-logo.png"   "$FOODSWIPE_DIR/public/foodswift-logo.png" && echo "  ✅ logo.png"
+
+# Git Push
+echo ""
+echo "🚀 Push zu GitHub..."
+cd "$FOODSWIPE_DIR"
+
+if git diff --quiet && git diff --cached --quiet; then
+  echo "  ⚠️  Keine Änderungen gefunden!"
+  echo "  → Hast du die neuen Dateien in ~/Downloads/files/ abgelegt?"
+  exit 1
+fi
+
+git add .
+git commit -m "$MSG"
+git push origin main
 
 echo ""
-echo "🍽️  FoodSwipe Update Script"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-# App.jsx
-if [ -f "$DOWNLOADS/App.jsx" ]; then
-  cp "$DOWNLOADS/App.jsx" "$SRC/App.jsx"
-  echo "✅ App.jsx aktualisiert"
-  rm "$DOWNLOADS/App.jsx"
-else
-  echo "⚠️  App.jsx nicht in Downloads gefunden – übersprungen"
-fi
-
-# index.css
-if [ -f "$DOWNLOADS/index.css" ]; then
-  cp "$DOWNLOADS/index.css" "$SRC/index.css"
-  echo "✅ index.css aktualisiert"
-  rm "$DOWNLOADS/index.css"
-fi
-
-# index.html
-if [ -f "$DOWNLOADS/index.html" ]; then
-  cp "$DOWNLOADS/index.html" "$ROOT/index.html"
-  echo "✅ index.html aktualisiert"
-  rm "$DOWNLOADS/index.html"
-fi
-
-# manifest.json → public/
-if [ -f "$DOWNLOADS/manifest.json" ]; then
-  mkdir -p "$PUBLIC"
-  cp "$DOWNLOADS/manifest.json" "$PUBLIC/manifest.json"
-  echo "✅ manifest.json aktualisiert"
-  rm "$DOWNLOADS/manifest.json"
-fi
-
-# Icon → public/
-if [ -f "$DOWNLOADS/foodswipe-icon.svg" ]; then
-  mkdir -p "$PUBLIC"
-  cp "$DOWNLOADS/foodswipe-icon.svg" "$PUBLIC/foodswipe-icon.svg"
-  echo "✅ App-Icon aktualisiert"
-  rm "$DOWNLOADS/foodswipe-icon.svg"
-fi
-
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🚀 Fertig! App wird neu geladen..."
-echo ""
-
-# Vite läuft bereits? Browser öffnen
-if lsof -i :5173 > /dev/null 2>&1; then
-  echo "✅ Vite läuft bereits – Browser aktualisiert sich automatisch!"
-else
-  echo "▶️  Starte Vite Server..."
-  cd ~/foodswipe && npm run dev -- --host &
-  sleep 2
-  open http://localhost:5173
-fi
+echo "================================"
+echo "✅ Fertig! Vercel deployed in ~2 Min."
+echo "🌐 https://foodswipe-rose.vercel.app"

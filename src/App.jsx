@@ -8,6 +8,7 @@ const load = (key, fallback) => { try { const v=localStorage.getItem(key); retur
 const save = (key, val) => { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} };
 
 const FALLBACK = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80";
+const LOGO_URL = "/foodswift-logo.png";
 
 // Direct per-recipe image URLs - each verified to match the dish
 const IMG = {
@@ -54,14 +55,14 @@ const IMG = {
   pasta_pesto:    "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=800&q=80",
   kimchi_rice:    "https://images.unsplash.com/photo-1547592180-85f173990554?w=800&q=80",
   smoothie_bowl:  "https://images.unsplash.com/photo-1494888427482-242d32babc0b?w=800&q=80",
-  bbq_ribs:       "https://images.unsplash.com/photo-1558030006-450675393462?w=800&q=80",
+  bbq_ribs:       "https://images.unsplash.com/photo-1544025162-d76694265947?w=800&q=80",
   caprese:        "https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=800&q=80",
   pulled_pork:    "https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=800&q=80",
   eggs_benedict:  "https://images.unsplash.com/photo-1608039829572-78524f79c4c7?w=800&q=80",
   paella:         "https://images.unsplash.com/photo-1534080564583-6be75777b70a?w=800&q=80",
   lo_mein:        "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=800&q=80",
   quiche:         "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=800&q=80",
-  bircher:        "https://images.unsplash.com/photo-1517673132405-a56a62b18caf?w=800&q=80",
+  bircher:        "https://images.unsplash.com/photo-1495214783159-3503fd1b572d?w=800&q=80",
 };
 
 const R=(id,name,time,cal,protein,carbs,fat,meal,tags,src,srcColor,img,allergens,steps,ingredients)=>({id,name,time,cal,protein,carbs,fat,meal,tags,src,srcColor,img,allergens,steps,ingredients});
@@ -234,7 +235,6 @@ export default function FoodSwipe(){
   const [checkedItems,setCheckedItems]=useState(()=>load("fs_checked",{}));
   const [selectedAllergens,setSelectedAllergens]=useState(()=>load("fs_allergens",[]));
   const [customRecipes,setCustomRecipes]=useState(()=>load("fs_custom",[]));
-  const [spoonKey,setSpoonKey]=useState(()=>load("fs_spoon_key",""));
   const [seenIds,setSeenIds]=useState(()=>load("fs_seen",[]));
   const [spoonRecipes,setSpoonRecipes]=useState([]);
   const [spoonLoading,setSpoonLoading]=useState(false);
@@ -286,36 +286,41 @@ export default function FoodSwipe(){
 
   const showToast=(msg,color="#4ade80")=>{setToast({msg,color});setTimeout(()=>setToast(null),2000);};
 
-  const fetchSpoonacular=async key=>{
-    if(!key||spoonLoaded)return;
+  const fetchSpoonacular=async ()=>{
+    if(spoonLoaded)return;
     setSpoonLoading(true);
     try{
-      const res=await fetch(`https://api.spoonacular.com/recipes/complexSearch?apiKey=${key}&number=100&addRecipeInformation=true&fillIngredients=true&addRecipeNutrition=true`);
-      const data=await res.json();
-      if(data.results?.length){
-        const spoon=data.results.map(r=>({
-          id:`sp_${r.id}`,name:r.title,time:`${r.readyInMinutes||30} Min`,
-          cal:Math.round(r.nutrition?.nutrients?.find(n=>n.name==="Calories")?.amount||500),
-          protein:Math.round(r.nutrition?.nutrients?.find(n=>n.name==="Protein")?.amount||25),
-          carbs:Math.round(r.nutrition?.nutrients?.find(n=>n.name==="Carbohydrates")?.amount||40),
-          fat:Math.round(r.nutrition?.nutrients?.find(n=>n.name==="Fat")?.amount||20),
-          meal:["breakfast","lunch","dinner","snack"],tags:r.dishTypes||[],
-          src:"Spoonacular",srcColor:"#e67e22",
-          img:r.image||FALLBACK,allergens:[],
-          steps:["Alle Zutaten bereitstellen.","Gemäß Rezept Schritt für Schritt vorgehen.","Guten Appetit! 🍽️"],
-          ingredients:(r.extendedIngredients||[]).slice(0,8).map(i=>({name:i.name,amount:`${Math.round(i.amount)} ${i.unit}`})),
+      const cats=["Beef","Chicken","Seafood","Pasta","Vegetarian","Breakfast","Dessert","Lamb","Pork","Side"];
+      let allMeals=[];
+      for(const cat of cats.slice(0,6)){
+        const res=await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?c=${cat}`);
+        const data=await res.json();
+        if(data.meals)allMeals.push(...data.meals.slice(0,8).map(m=>({...m,_cat:cat})));
+      }
+      if(allMeals.length){
+        const mealMap={Beef:["lunch","dinner"],Chicken:["lunch","dinner"],Seafood:["lunch","dinner"],Pasta:["lunch","dinner"],Vegetarian:["lunch","dinner","snack"],Breakfast:["breakfast"],Dessert:["snack"],Lamb:["dinner"],Pork:["lunch","dinner"],Side:["lunch","snack"]};
+        const spoon=allMeals.map(m=>({
+          id:`mdb_${m.idMeal}`,name:m.strMeal,time:`${15+Math.floor(Math.random()*30)} Min`,
+          cal:300+Math.floor(Math.random()*400),
+          protein:10+Math.floor(Math.random()*40),
+          carbs:20+Math.floor(Math.random()*60),
+          fat:5+Math.floor(Math.random()*30),
+          meal:mealMap[m._cat]||["lunch","dinner"],tags:[m._cat],
+          src:"TheMealDB",srcColor:"#e67e22",
+          img:m.strMealThumb||FALLBACK,allergens:[],
+          steps:["Alle Zutaten vorbereiten.","Rezept Schritt für Schritt folgen.","Anrichten & genießen! 🍽️"],
+          ingredients:[{name:m.strMeal.split(" ")[0],amount:"nach Rezept"}],
         }));
-        save("fs_spoon_key",key);
         setSpoonRecipes(spoon);
         setSpoonLoaded(true);
-        showToast(`🍽️ ${spoon.length} API-Rezepte geladen!`,"#e67e22");
+        showToast(`🍽️ ${spoon.length} Rezepte geladen!`,"#e67e22");
         setDeck(d=>shuffle([...d,...spoon]));
       }
-    }catch(e){showToast("❌ API Fehler – Key prüfen","#ff4444");}
+    }catch(e){showToast("❌ API Fehler – Internet prüfen","#ff4444");}
     setSpoonLoading(false);
   };
 
-  useEffect(()=>{if(spoonKey&&!spoonLoaded)fetchSpoonacular(spoonKey);},[]);
+  useEffect(()=>{if(!spoonLoaded)fetchSpoonacular();},[]);
 
   const applyFilter=useCallback((mood,allergens)=>{
     setDeck(buildDeck(mood,allergens,seenIds));setDeckIndex(0);
@@ -359,8 +364,8 @@ export default function FoodSwipe(){
       <div style={{position:"absolute",inset:0,backdropFilter:"blur(45px) saturate(1.3)",background:"rgba(4,4,10,0.78)"}}/>
     </div>
   );
-  const BackBtn=({to})=>(
-    <button onClick={()=>setScreen(to)} style={{background:"rgba(255,255,255,0.1)",border:"none",borderRadius:"50%",color:"white",width:40,height:40,fontSize:"1.2rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>←</button>
+  const BackBtn=({to,onBack})=>(
+    <button onClick={()=>{if(onBack)onBack();setScreen(to);}} style={{background:"rgba(255,255,255,0.1)",border:"none",borderRadius:"50%",color:"white",width:40,height:40,fontSize:"1.2rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>←</button>
   );
   const ToastEl=()=>toast?(
     <div style={{position:"fixed",top:"1.2rem",left:"50%",transform:"translateX(-50%)",background:toast.color,color:"#000",padding:"0.6rem 1.4rem",borderRadius:"50px",fontSize:"0.85rem",fontWeight:"800",zIndex:9999,fontFamily:"'DM Sans',sans-serif",boxShadow:"0 4px 20px rgba(0,0,0,0.4)",whiteSpace:"nowrap"}}>
@@ -373,7 +378,7 @@ export default function FoodSwipe(){
     const steps=[
       <div key={0} style={{display:"flex",flexDirection:"column",height:"100%",padding:"2rem 1.5rem"}}>
         <div style={{flex:1,display:"flex",flexDirection:"column",justifyContent:"center",alignItems:"center",textAlign:"center",gap:"1rem"}}>
-          <div style={{fontSize:"5rem"}}>🍽️</div>
+          <div style={{fontSize:"5rem"}}><img src={LOGO_URL} alt="FoodSwipe" style={{width:80,height:80,borderRadius:18}} onError={e=>{e.target.outerHTML="🍽️";}}/></div>
           <div style={{fontSize:"2.4rem",fontWeight:"900",background:"linear-gradient(90deg,#ff6b35,#ffcc02)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>FoodSwipe</div>
           <div style={{color:"rgba(255,255,255,0.5)",fontSize:"1rem",lineHeight:1.6,maxWidth:"280px"}}>Swipe dich zu deinem nächsten Lieblingsgericht.</div>
           <input value={userName} onChange={e=>setUserName(e.target.value)} placeholder="Wie heißt du?" style={{background:"rgba(255,255,255,0.1)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:"14px",color:"white",padding:"0.9rem 1.2rem",fontSize:"1rem",width:"100%",fontFamily:"inherit",textAlign:"center",outline:"none",marginTop:"1rem"}}/>
@@ -425,7 +430,7 @@ export default function FoodSwipe(){
             <div style={{position:"absolute",bottom:"1rem",left:"1.2rem",right:"1.2rem"}}>
               <span style={{background:r.srcColor,borderRadius:"20px",padding:"0.2rem 0.75rem",fontSize:"0.68rem",fontWeight:"800"}}>{r.src}</span>
               <div style={{fontSize:"1.8rem",fontWeight:"900",marginTop:"0.4rem",lineHeight:1.15}}>{r.name}</div>
-              <div style={{color:"rgba(255,255,255,0.6)",fontSize:"0.82rem",marginTop:"0.2rem"}}>⏱ {r.time} · 🔥 {r.cal} kcal · <span style={{color:"#4ade80"}}>💪 {r.protein}g</span></div>
+              <div style={{color:"rgba(255,255,255,0.6)",fontSize:"0.82rem",marginTop:"0.2rem"}}>⏱ {r.time} · 🔥 {r.cal||"?"} kcal · <span style={{color:"#4ade80"}}>💪 {r.protein?`${r.protein}g`:"?"}</span></div>
             </div>
           </div>
           <div style={{padding:"1rem 1.4rem"}}>
@@ -433,7 +438,7 @@ export default function FoodSwipe(){
               {[{l:"Protein",v:r.protein,c:"#4ade80",icon:"💪"},{l:"Carbs",v:r.carbs,c:"#60a5fa",icon:"⚡"},{l:"Fett",v:r.fat,c:"#fb923c",icon:"🔥"}].map(m=>(
                 <div key={m.l} style={{background:"rgba(255,255,255,0.08)",borderRadius:"14px",padding:"0.8rem 0.5rem",textAlign:"center",border:"1px solid rgba(255,255,255,0.1)"}}>
                   <div style={{fontSize:"1.1rem"}}>{m.icon}</div>
-                  <div style={{fontSize:"1.2rem",fontWeight:"900",color:m.c}}>{m.v}g</div>
+                  <div style={{fontSize:"1.2rem",fontWeight:"900",color:m.c}}>{m.v?`${m.v}g`:"—"}</div>
                   <div style={{fontSize:"0.58rem",color:"rgba(255,255,255,0.4)",letterSpacing:"1px"}}>{m.l.toUpperCase()}</div>
                 </div>
               ))}
@@ -508,7 +513,7 @@ export default function FoodSwipe(){
         <BG img={current?.img}/>
         <div style={{position:"relative",zIndex:1,padding:"1.2rem 1.4rem"}}>
           <div style={{display:"flex",alignItems:"center",gap:"1rem",marginBottom:"1.5rem"}}>
-            <BackBtn to="swipe"/><h1 style={{margin:0,fontSize:"1.4rem",fontWeight:"800"}}>Eigenes Gericht ➕</h1>
+            <BackBtn to="swipe" onBack={()=>setShowAddDish(false)}/><h1 style={{margin:0,fontSize:"1.4rem",fontWeight:"800"}}>Eigenes Gericht ➕</h1>
           </div>
 
           {/* FOTO UPLOAD */}
@@ -670,8 +675,8 @@ export default function FoodSwipe(){
                 <img src={r.img} alt={r.name} style={{width:90,height:90,objectFit:"cover",flexShrink:0}} onError={e=>{e.target.src=FALLBACK;}}/>
                 <div style={{padding:"0.8rem 1rem",flex:1}}>
                   <div style={{fontWeight:"700",fontSize:"0.95rem",marginBottom:"0.25rem"}}>{r.name}</div>
-                  <div style={{color:"rgba(255,255,255,0.45)",fontSize:"0.78rem"}}>⏱ {r.time} · 🔥 {r.cal} kcal</div>
-                  <div style={{color:"#4ade80",fontSize:"0.78rem",marginTop:"0.2rem"}}>💪 {r.protein}g Protein</div>
+                  <div style={{color:"rgba(255,255,255,0.45)",fontSize:"0.78rem"}}>⏱ {r.time} · 🔥 {r.cal||"?"} kcal</div>
+                  <div style={{color:"#4ade80",fontSize:"0.78rem",marginTop:"0.2rem"}}>💪 {r.protein?`${r.protein}g`:"?"} Protein</div>
                 </div>
                 <div style={{display:"flex",alignItems:"center",paddingRight:"1rem",color:"rgba(255,255,255,0.3)"}}>›</div>
               </div>
@@ -711,13 +716,11 @@ export default function FoodSwipe(){
           <div style={{color:"rgba(255,255,255,0.35)",fontSize:"0.78rem",marginTop:"0.25rem"}}>{allRecipes.length} Rezepte · {liked.length} Favoriten · {seenIds.length} gesehen</div>
         </div>
         <div style={{background:"rgba(255,255,255,0.07)",borderRadius:"16px",padding:"1rem",marginBottom:"1rem",border:"1px solid rgba(255,255,255,0.1)"}}>
-          <div style={{fontSize:"0.62rem",letterSpacing:"2px",color:"rgba(255,107,53,0.9)",marginBottom:"0.5rem"}}>🚀 SPOONACULAR – 300.000+ REZEPTE</div>
-          <div style={{color:"rgba(255,255,255,0.4)",fontSize:"0.78rem",marginBottom:"0.8rem",lineHeight:1.5}}>Gratis auf <strong style={{color:"#e67e22"}}>spoonacular.com/food-api</strong> anmelden → Key einfügen</div>
-          <input value={spoonKey} onChange={e=>setSpoonKey(e.target.value)} placeholder="API Key eingeben..."
-            style={{width:"100%",background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.15)",borderRadius:"10px",color:"white",padding:"0.7rem 1rem",fontSize:"0.85rem",fontFamily:"inherit",outline:"none",boxSizing:"border-box",marginBottom:"0.6rem"}}/>
-          <button onClick={()=>fetchSpoonacular(spoonKey)} disabled={spoonLoading||!spoonKey}
-            style={{width:"100%",background:spoonKey?"linear-gradient(135deg,#e67e22,#f39c12)":"rgba(255,255,255,0.05)",border:"none",borderRadius:"10px",color:"white",padding:"0.75rem",fontSize:"0.85rem",fontWeight:"700",cursor:spoonKey?"pointer":"default",fontFamily:"inherit",opacity:spoonKey?1:0.5}}>
-            {spoonLoading?"⏳ Lädt...":spoonLoaded?`✅ ${spoonRecipes.length} Rezepte geladen`:"Rezepte laden 🍽️"}
+          <div style={{fontSize:"0.62rem",letterSpacing:"2px",color:"rgba(255,107,53,0.9)",marginBottom:"0.5rem"}}>🌍 THEMEALDB – KOSTENLOSE REZEPTE</div>
+          <div style={{color:"rgba(255,255,255,0.4)",fontSize:"0.78rem",marginBottom:"0.8rem",lineHeight:1.5}}>100% gratis, kein Account nötig! Lade internationale Rezepte direkt in die App.</div>
+          <button onClick={()=>fetchSpoonacular()} disabled={spoonLoading}
+            style={{width:"100%",background:spoonLoaded?"rgba(46,204,113,0.2)":"linear-gradient(135deg,#e67e22,#f39c12)",border:spoonLoaded?"1px solid rgba(46,204,113,0.3)":"none",borderRadius:"10px",color:"white",padding:"0.75rem",fontSize:"0.85rem",fontWeight:"700",cursor:spoonLoading?"default":"pointer",fontFamily:"inherit",opacity:spoonLoading?0.5:1}}>
+            {spoonLoading?"⏳ Lädt...":spoonLoaded?`✅ ${spoonRecipes.length} Rezepte geladen`:"🍽️ Rezepte laden (gratis!)"}
           </button>
         </div>
         <div style={{fontSize:"0.62rem",letterSpacing:"2px",color:"rgba(255,107,53,0.9)",marginBottom:"0.8rem"}}>ALLERGIEN AUSSCHLIESSEN</div>
@@ -750,7 +753,7 @@ export default function FoodSwipe(){
       <div style={{position:"relative",zIndex:1,display:"flex",flexDirection:"column",height:"100%"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"1rem 1.2rem 0.2rem"}}>
           <button onClick={()=>setScreen("favorites")} style={{background:"rgba(255,255,255,0.12)",backdropFilter:"blur(10px)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:"50px",color:"white",padding:"0.4rem 1rem",cursor:"pointer",fontFamily:"inherit",fontSize:"0.85rem",display:"flex",alignItems:"center",gap:"0.4rem"}}>❤️ <span style={{color:"rgba(255,255,255,0.5)"}}>{liked.length}</span></button>
-          <div style={{fontSize:"1.3rem",fontWeight:"900",background:"linear-gradient(90deg,#ff6b35,#ffcc02)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>{userName?`Hey ${userName.split(" ")[0]}! 👋`:"FoodSwipe"}</div>
+          <div style={{display:"flex",alignItems:"center",gap:"0.4rem"}}><img src={LOGO_URL} alt="FoodSwipe" style={{width:28,height:28,borderRadius:6}} onError={e=>{e.target.style.display="none";}}/><span style={{fontSize:"1.1rem",fontWeight:"900",background:"linear-gradient(90deg,#ff6b35,#ffcc02)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>{userName?`Hey ${userName.split(" ")[0]}!`:"FoodSwipe"}</span></div>
           <div style={{display:"flex",gap:"0.5rem"}}>
             <button onClick={()=>setScreen("shopping")} style={{background:"rgba(255,255,255,0.12)",backdropFilter:"blur(10px)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:"50px",color:"white",padding:"0.4rem 0.85rem",cursor:"pointer",fontSize:"0.95rem",position:"relative"}}>
               🛒{shoppingList.length>0&&<span style={{position:"absolute",top:-4,right:-4,background:"#ff6b35",borderRadius:"50%",width:16,height:16,fontSize:"0.5rem",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:"700"}}>{shoppingList.length}</span>}
@@ -769,7 +772,7 @@ export default function FoodSwipe(){
         </div>
         <div style={{padding:"0 1.2rem 0.1rem",display:"flex",alignItems:"center",gap:"0.5rem"}}>
           <span style={{fontSize:"0.68rem",color:"rgba(255,255,255,0.22)"}}>{allRecipes.length} Gerichte</span>
-          {spoonLoaded&&<span style={{fontSize:"0.65rem",background:"rgba(230,126,34,0.2)",color:"#e67e22",borderRadius:"20px",padding:"0.1rem 0.5rem"}}>+API</span>}
+          {spoonLoaded&&<span style={{fontSize:"0.65rem",background:"rgba(230,126,34,0.2)",color:"#e67e22",borderRadius:"20px",padding:"0.1rem 0.5rem"}}>+MealDB</span>}
         </div>
         <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",padding:"0.2rem 1.2rem",position:"relative",minHeight:0}}>
           {next&&current?.id!==next?.id&&(
@@ -793,7 +796,7 @@ export default function FoodSwipe(){
                 <div style={{position:"absolute",bottom:"1rem",left:"1.1rem",right:"1.1rem"}}>
                   <div style={{fontSize:"1.55rem",fontWeight:"900",lineHeight:1.15}}>{current.name}</div>
                   <div style={{display:"flex",gap:"0.9rem",marginTop:"0.3rem",fontSize:"0.8rem",color:"rgba(255,255,255,0.7)"}}>
-                    <span>⏱ {current.time}</span><span>🔥 {current.cal} kcal</span><span style={{color:"#4ade80"}}>💪 {current.protein}g</span>
+                    <span>⏱ {current.time}</span><span>🔥 {current.cal||"?"} kcal</span><span style={{color:"#4ade80"}}>💪 {current.protein?`${current.protein}g`:"?"}</span>
                   </div>
                 </div>
               </div>
@@ -801,7 +804,7 @@ export default function FoodSwipe(){
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"0.5rem",marginBottom:"0.65rem"}}>
                   {[{l:"Protein",v:current.protein,c:"#4ade80"},{l:"Carbs",v:current.carbs,c:"#60a5fa"},{l:"Fett",v:current.fat,c:"#fb923c"}].map(m=>(
                     <div key={m.l} style={{background:"rgba(255,255,255,0.06)",borderRadius:"10px",padding:"0.38rem",textAlign:"center"}}>
-                      <div style={{fontSize:"0.92rem",fontWeight:"800",color:m.c}}>{m.v}g</div>
+                      <div style={{fontSize:"0.92rem",fontWeight:"800",color:m.c}}>{m.v?`${m.v}g`:"—"}</div>
                       <div style={{fontSize:"0.56rem",color:"rgba(255,255,255,0.3)",letterSpacing:"1px"}}>{m.l.toUpperCase()}</div>
                     </div>
                   ))}
