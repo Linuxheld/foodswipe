@@ -2,10 +2,167 @@ import { useState, useRef, useCallback, useEffect } from "react";
 
 const shuffle = arr => { const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
 const getSlot = () => { const h=new Date().getHours(); if(h>=6&&h<11)return"morning"; if(h>=11&&h<15)return"lunch"; if(h>=15&&h<18)return"snack"; return"dinner"; };
-const slotLabel = { morning:{emoji:"🌅",sub:"Frühstücks-Ideen"}, lunch:{emoji:"☀️",sub:"Mittagsideen"}, snack:{emoji:"🌆",sub:"Schnelle Snacks"}, dinner:{emoji:"🌙",sub:"Dinner-Ideen"} };
 const slotMap = { morning:"breakfast", lunch:"lunch", snack:"snack", dinner:"dinner" };
 const load = (key, fallback) => { try { const v=localStorage.getItem(key); return v?JSON.parse(v):fallback; } catch { return fallback; } };
 const save = (key, val) => { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} };
+
+// ── i18n TRANSLATIONS ─────────────────────────────────────────────────────
+const TRANSLATIONS={
+  de:{
+    // Slot labels
+    slot_morning:"Frühstücks-Ideen",slot_lunch:"Mittagsideen",slot_snack:"Schnelle Snacks",slot_dinner:"Dinner-Ideen",
+    // Moods
+    mood_time:"Zur Uhrzeit",mood_all:"Alles",mood_fast:"Schnell",mood_protein:"High Protein",mood_veggie:"Vegetarisch",mood_trending:"Trending",mood_lowcal:"Wenig Kalorien",
+    // Onboarding
+    ob_tagline:"Swipe dich zu deinem nächsten Lieblingsgericht.",ob_name_placeholder:"Wie heißt du?",ob_next:"Weiter →",
+    ob_how_title:"So funktioniert's 👆",ob_how_sub:"Einfach wie Tinder – nur für Essen!",
+    ob_swipe_right:"Rechts swipen",ob_swipe_right_sub:"Magst du → kommt in Favoriten",
+    ob_swipe_left:"Links swipen",ob_swipe_left_sub:"Kein Interesse → nächstes Gericht",
+    ob_favorites:"Favoriten",ob_favorites_sub:"Alle Gerichte + Kochanleitungen",
+    ob_shopping:"Einkaufsliste",ob_shopping_sub:"Zutaten werden automatisch gesammelt",
+    ob_back:"← Zurück",ob_start:"Los geht's 🚀",
+    ob_lang_title:"Sprache wählen 🌍",ob_lang_sub:"Du kannst sie jederzeit in den Einstellungen ändern.",
+    // Swipe
+    swipe_nope:"NOPE",swipe_like:"LECKER!",swipe_recipe:"👨‍🍳 Rezept",swipe_dishes:"Gerichte",swipe_own:"➕ Eigenes",
+    swipe_no_recipes:"Keine Rezepte",swipe_change_filter:"Anderen Filter wählen!",
+    // Detail
+    detail_ingredients:"🛒 Zutaten",detail_steps:"👨‍🍳 Zubereitung",
+    detail_remove_fav:"🗑 Aus Favoriten entfernen",detail_add_fav:"❤️ Zu Favoriten hinzufügen",
+    detail_delete_custom:"🗑 Eigenes Gericht löschen",detail_back:"← Zurück",
+    detail_removed:"🗑 Entfernt",detail_saved_fav:"❤️ Favorit!",
+    // Favorites
+    fav_title:"Favoriten ❤️",fav_empty_title:"Noch keine Favoriten",fav_empty_sub:"Swipe Gerichte nach rechts, um sie zu speichern!",
+    fav_history:"VERLAUF – antippen zum Öffnen",fav_clear_history:"Verlauf löschen",
+    // Shopping
+    shop_title:"Einkaufsliste 🛒",shop_open:"offen",shop_empty_sub:"Swipe Gerichte nach rechts!",
+    shop_clear:"🗑 Liste leeren",shop_clear_checked:"Erledigte entfernen",
+    // Settings
+    set_title:"Einstellungen ⚙️",set_profile:"PROFIL",set_hey:"Hey",set_recipes:"Rezepte",set_favs:"Favoriten",set_seen:"gesehen",
+    set_mealdb_title:"🌍 THEMEALDB – KOSTENLOSE REZEPTE",set_mealdb_sub:"100% gratis, kein Account nötig! Lade internationale Rezepte direkt in die App.",
+    set_mealdb_loading:"⏳ Lädt...",set_mealdb_loaded:"Rezepte geladen",set_mealdb_btn:"🍽️ Rezepte laden (gratis!)",
+    set_ai_title:"🤖 KI-REZEPT-SCANNER (optional)",set_ai_sub:"Fotografiere Rezeptkarten (HelloFresh etc.) und Claude erkennt Zutaten & Schritte automatisch.",set_ai_sub2:"Key auf",set_ai_sub3:"erstellen.",
+    set_ai_saved:"✅ API Key gespeichert – Scan bereit!",set_ai_without:"Ohne Key: manuell Rezepte eingeben",
+    set_allergens:"ALLERGIEN AUSSCHLIESSEN",set_allergen_input:"Eigene Allergie eingeben...",set_allergen_add:"+ Hinzufügen",
+    set_reset_seen:"🔄 Gesehene zurücksetzen",set_redo_onboarding:"Onboarding wiederholen",
+    set_lang_title:"🌍 SPRACHE / LANGUAGE",
+    // Add dish
+    add_title:"Eigenes Gericht 🍳",add_photo:"📷 Foto aufnehmen",add_gallery:"🖼️ Aus Galerie",
+    add_scan:"🤖 Rezeptkarte scannen",add_scanning:"⏳ Scanne...",add_scanned:"✅ Erkannt!",
+    add_name:"GERICHTNAME *",add_name_ph:"z.B. Mamas Bolognese",add_time:"KOCHZEIT",add_time_ph:"z.B. 30 Min",
+    add_meal:"MAHLZEIT-KATEGORIE *",add_nutrition:"NÄHRWERTE (pro Portion)",
+    add_cal:"KALORIEN (kcal)",add_protein:"PROTEIN (g)",add_carbs:"KOHLENHYDRATE (g)",add_fat:"FETT (g)",
+    add_ingredients:"ZUTATEN (kommagetrennt: \"Nudeln 200g, Hackfleisch 300g\")",add_ingredients_ph:"Nudeln 200g, Hackfleisch 300g, Zwiebel 1 Stück",
+    add_steps:"ZUBEREITUNG (jeder Schritt neue Zeile)",add_steps_ph:"Zwiebeln anbraten.\nHackfleisch dazu.\nSauce köcheln lassen.\nServieren!",
+    add_save:"Gericht hinzufügen ✅",add_cancel:"Abbrechen",
+    add_err_name:"❌ Bitte Gerichtname eingeben!",add_err_meal:"❌ Bitte Mahlzeit wählen!",add_success:"✅ Gericht hinzugefügt!",
+    // Meals
+    meal_breakfast:"🌅 Frühstück",meal_lunch:"☀️ Mittagessen",meal_dinner:"🌙 Abendessen",meal_snack:"🍎 Snack",
+    // Toast
+    toast_already_saved:"ist schon gespeichert!",toast_saved:"gespeichert!",toast_shuffled:"🔀 Neu gemischt!",toast_api_error:"❌ API Fehler – Internet prüfen",
+    toast_allergen_added:"hinzugefügt",toast_reset:"🔄 Zurückgesetzt!",
+    // TheMealDB fallback
+    mdb_default_amount:"nach Bedarf",mdb_fallback_step1:"Alle Zutaten vorbereiten.",mdb_fallback_step2:"Rezept Schritt für Schritt folgen.",mdb_fallback_step3:"Anrichten & genießen! 🍽️",
+    // Nav
+    nav_swipe:"Swipen",nav_favorites:"Favoriten",nav_shopping:"Liste",nav_settings:"Mehr",
+    // Protein/Carbs/Fat labels
+    lbl_protein:"PROTEIN",lbl_carbs:"CARBS",lbl_fat:"FETT",
+    // Misc
+    min:"Min",kcal:"kcal",recipes_loaded:"Rezepte geladen!",
+  },
+  pl:{
+    slot_morning:"Pomysły na śniadanie",slot_lunch:"Pomysły na obiad",slot_snack:"Szybkie przekąski",slot_dinner:"Pomysły na kolację",
+    mood_time:"Wg pory dnia",mood_all:"Wszystko",mood_fast:"Szybkie",mood_protein:"Dużo białka",mood_veggie:"Wegetariańskie",mood_trending:"Popularne",mood_lowcal:"Mało kalorii",
+    ob_tagline:"Swipuj, by odkryć swoje następne ulubione danie.",ob_name_placeholder:"Jak masz na imię?",ob_next:"Dalej →",
+    ob_how_title:"Jak to działa 👆",ob_how_sub:"Proste jak Tinder – ale z jedzeniem!",
+    ob_swipe_right:"Swipe w prawo",ob_swipe_right_sub:"Lubisz → dodaje do ulubionych",
+    ob_swipe_left:"Swipe w lewo",ob_swipe_left_sub:"Nie chcesz → następne danie",
+    ob_favorites:"Ulubione",ob_favorites_sub:"Wszystkie dania + przepisy",
+    ob_shopping:"Lista zakupów",ob_shopping_sub:"Składniki zbierane automatycznie",
+    ob_back:"← Wstecz",ob_start:"Zaczynamy 🚀",
+    ob_lang_title:"Wybierz język 🌍",ob_lang_sub:"Możesz go zmienić w ustawieniach w każdej chwili.",
+    swipe_nope:"NIE",swipe_like:"PYSZNE!",swipe_recipe:"👨‍🍳 Przepis",swipe_dishes:"Dania",swipe_own:"➕ Własne",
+    swipe_no_recipes:"Brak przepisów",swipe_change_filter:"Wybierz inny filtr!",
+    detail_ingredients:"🛒 Składniki",detail_steps:"👨‍🍳 Przygotowanie",
+    detail_remove_fav:"🗑 Usuń z ulubionych",detail_add_fav:"❤️ Dodaj do ulubionych",
+    detail_delete_custom:"🗑 Usuń własne danie",detail_back:"← Wstecz",
+    detail_removed:"🗑 Usunięto",detail_saved_fav:"❤️ Ulubione!",
+    fav_title:"Ulubione ❤️",fav_empty_title:"Brak ulubionych",fav_empty_sub:"Swipuj dania w prawo, aby je zapisać!",
+    fav_history:"HISTORIA – dotknij, by otworzyć",fav_clear_history:"Wyczyść historię",
+    shop_title:"Lista zakupów 🛒",shop_open:"do kupienia",shop_empty_sub:"Swipuj dania w prawo!",
+    shop_clear:"🗑 Wyczyść listę",shop_clear_checked:"Usuń zaznaczone",
+    set_title:"Ustawienia ⚙️",set_profile:"PROFIL",set_hey:"Hej",set_recipes:"Przepisy",set_favs:"Ulubione",set_seen:"widziane",
+    set_mealdb_title:"🌍 THEMEALDB – DARMOWE PRZEPISY",set_mealdb_sub:"100% za darmo, bez konta! Załaduj międzynarodowe przepisy do aplikacji.",
+    set_mealdb_loading:"⏳ Ładowanie...",set_mealdb_loaded:"przepisów załadowanych",set_mealdb_btn:"🍽️ Załaduj przepisy (za darmo!)",
+    set_ai_title:"🤖 SKANER PRZEPISÓW AI (opcjonalnie)",set_ai_sub:"Zrób zdjęcie karty przepisu (HelloFresh itp.) – Claude automatycznie rozpozna składniki i kroki.",set_ai_sub2:"Utwórz klucz na",set_ai_sub3:".",
+    set_ai_saved:"✅ Klucz API zapisany – skan gotowy!",set_ai_without:"Bez klucza: ręczne dodawanie przepisów",
+    set_allergens:"WYKLUCZ ALERGENY",set_allergen_input:"Wpisz własny alergen...",set_allergen_add:"+ Dodaj",
+    set_reset_seen:"🔄 Resetuj widziane",set_redo_onboarding:"Powtórz intro",
+    set_lang_title:"🌍 JĘZYK / LANGUAGE",
+    add_title:"Własne danie 🍳",add_photo:"📷 Zrób zdjęcie",add_gallery:"🖼️ Z galerii",
+    add_scan:"🤖 Skanuj kartę przepisu",add_scanning:"⏳ Skanowanie...",add_scanned:"✅ Rozpoznano!",
+    add_name:"NAZWA DANIA *",add_name_ph:"np. Bigos babci",add_time:"CZAS GOTOWANIA",add_time_ph:"np. 30 Min",
+    add_meal:"KATEGORIA POSIŁKU *",add_nutrition:"WARTOŚCI ODŻYWCZE (na porcję)",
+    add_cal:"KALORIE (kcal)",add_protein:"BIAŁKO (g)",add_carbs:"WĘGLOWODANY (g)",add_fat:"TŁUSZCZ (g)",
+    add_ingredients:"SKŁADNIKI (oddzielone przecinkami: \"Makaron 200g, Mięso 300g\")",add_ingredients_ph:"Makaron 200g, Mięso 300g, Cebula 1 szt.",
+    add_steps:"PRZYGOTOWANIE (każdy krok w nowej linii)",add_steps_ph:"Podsmaż cebulę.\nDodaj mięso.\nGotuj sos.\nPodawaj!",
+    add_save:"Dodaj danie ✅",add_cancel:"Anuluj",
+    add_err_name:"❌ Wpisz nazwę dania!",add_err_meal:"❌ Wybierz kategorię!",add_success:"✅ Danie dodane!",
+    meal_breakfast:"🌅 Śniadanie",meal_lunch:"☀️ Obiad",meal_dinner:"🌙 Kolacja",meal_snack:"🍎 Przekąska",
+    toast_already_saved:"jest już zapisane!",toast_saved:"zapisane!",toast_shuffled:"🔀 Wymieszane!",toast_api_error:"❌ Błąd API – sprawdź internet",
+    toast_allergen_added:"dodano",toast_reset:"🔄 Zresetowano!",
+    mdb_default_amount:"wg potrzeby",mdb_fallback_step1:"Przygotuj wszystkie składniki.",mdb_fallback_step2:"Wykonaj przepis krok po kroku.",mdb_fallback_step3:"Podawaj i smacznego! 🍽️",
+    nav_swipe:"Swipuj",nav_favorites:"Ulubione",nav_shopping:"Lista",nav_settings:"Więcej",
+    lbl_protein:"BIAŁKO",lbl_carbs:"WĘGL.",lbl_fat:"TŁUSZCZ",
+    min:"Min",kcal:"kcal",recipes_loaded:"przepisów załadowanych!",
+  },
+  ru:{
+    slot_morning:"Идеи для завтрака",slot_lunch:"Идеи для обеда",slot_snack:"Быстрые перекусы",slot_dinner:"Идеи для ужина",
+    mood_time:"По времени",mood_all:"Всё",mood_fast:"Быстро",mood_protein:"Много белка",mood_veggie:"Вегетарианское",mood_trending:"В тренде",mood_lowcal:"Мало калорий",
+    ob_tagline:"Свайпай, чтобы найти своё следующее любимое блюдо.",ob_name_placeholder:"Как тебя зовут?",ob_next:"Далее →",
+    ob_how_title:"Как это работает 👆",ob_how_sub:"Просто как Тиндер – только с едой!",
+    ob_swipe_right:"Свайп вправо",ob_swipe_right_sub:"Нравится → в избранное",
+    ob_swipe_left:"Свайп влево",ob_swipe_left_sub:"Не хочу → следующее блюдо",
+    ob_favorites:"Избранное",ob_favorites_sub:"Все блюда + рецепты",
+    ob_shopping:"Список покупок",ob_shopping_sub:"Ингредиенты собираются автоматически",
+    ob_back:"← Назад",ob_start:"Поехали 🚀",
+    ob_lang_title:"Выберите язык 🌍",ob_lang_sub:"Можно изменить в настройках в любое время.",
+    swipe_nope:"НЕТ",swipe_like:"ВКУСНО!",swipe_recipe:"👨‍🍳 Рецепт",swipe_dishes:"Блюда",swipe_own:"➕ Своё",
+    swipe_no_recipes:"Нет рецептов",swipe_change_filter:"Выберите другой фильтр!",
+    detail_ingredients:"🛒 Ингредиенты",detail_steps:"👨‍🍳 Приготовление",
+    detail_remove_fav:"🗑 Убрать из избранного",detail_add_fav:"❤️ В избранное",
+    detail_delete_custom:"🗑 Удалить своё блюдо",detail_back:"← Назад",
+    detail_removed:"🗑 Удалено",detail_saved_fav:"❤️ В избранном!",
+    fav_title:"Избранное ❤️",fav_empty_title:"Пока пусто",fav_empty_sub:"Свайпайте блюда вправо, чтобы сохранить!",
+    fav_history:"ИСТОРИЯ – нажмите, чтобы открыть",fav_clear_history:"Очистить историю",
+    shop_title:"Список покупок 🛒",shop_open:"осталось",shop_empty_sub:"Свайпайте блюда вправо!",
+    shop_clear:"🗑 Очистить список",shop_clear_checked:"Удалить купленное",
+    set_title:"Настройки ⚙️",set_profile:"ПРОФИЛЬ",set_hey:"Привет",set_recipes:"Рецепты",set_favs:"Избранное",set_seen:"просмотрено",
+    set_mealdb_title:"🌍 THEMEALDB – БЕСПЛАТНЫЕ РЕЦЕПТЫ",set_mealdb_sub:"100% бесплатно, без регистрации! Загружай международные рецепты в приложение.",
+    set_mealdb_loading:"⏳ Загрузка...",set_mealdb_loaded:"рецептов загружено",set_mealdb_btn:"🍽️ Загрузить рецепты (бесплатно!)",
+    set_ai_title:"🤖 AI-СКАНЕР РЕЦЕПТОВ (опционально)",set_ai_sub:"Сфотографируй карточку рецепта (HelloFresh и т.д.) – Claude автоматически распознает ингредиенты и шаги.",set_ai_sub2:"Создай ключ на",set_ai_sub3:".",
+    set_ai_saved:"✅ API ключ сохранён – сканер готов!",set_ai_without:"Без ключа: добавлять рецепты вручную",
+    set_allergens:"ИСКЛЮЧИТЬ АЛЛЕРГЕНЫ",set_allergen_input:"Введите свой аллерген...",set_allergen_add:"+ Добавить",
+    set_reset_seen:"🔄 Сбросить просмотренные",set_redo_onboarding:"Повторить введение",
+    set_lang_title:"🌍 ЯЗЫК / LANGUAGE",
+    add_title:"Своё блюдо 🍳",add_photo:"📷 Сделать фото",add_gallery:"🖼️ Из галереи",
+    add_scan:"🤖 Сканировать рецепт",add_scanning:"⏳ Сканирование...",add_scanned:"✅ Распознано!",
+    add_name:"НАЗВАНИЕ БЛЮДА *",add_name_ph:"напр. Мамин борщ",add_time:"ВРЕМЯ ГОТОВКИ",add_time_ph:"напр. 30 Мин",
+    add_meal:"КАТЕГОРИЯ ПРИЁМА ПИЩИ *",add_nutrition:"ПИЩЕВАЯ ЦЕННОСТЬ (на порцию)",
+    add_cal:"КАЛОРИИ (kcal)",add_protein:"БЕЛОК (г)",add_carbs:"УГЛЕВОДЫ (г)",add_fat:"ЖИРЫ (г)",
+    add_ingredients:"ИНГРЕДИЕНТЫ (через запятую: \"Макароны 200г, Фарш 300г\")",add_ingredients_ph:"Макароны 200г, Фарш 300г, Лук 1 шт.",
+    add_steps:"ПРИГОТОВЛЕНИЕ (каждый шаг с новой строки)",add_steps_ph:"Обжарить лук.\nДобавить фарш.\nТушить соус.\nПодавать!",
+    add_save:"Добавить блюдо ✅",add_cancel:"Отмена",
+    add_err_name:"❌ Введите название блюда!",add_err_meal:"❌ Выберите категорию!",add_success:"✅ Блюдо добавлено!",
+    meal_breakfast:"🌅 Завтрак",meal_lunch:"☀️ Обед",meal_dinner:"🌙 Ужин",meal_snack:"🍎 Перекус",
+    toast_already_saved:"уже сохранено!",toast_saved:"сохранено!",toast_shuffled:"🔀 Перемешано!",toast_api_error:"❌ Ошибка API – проверьте интернет",
+    toast_allergen_added:"добавлен",toast_reset:"🔄 Сброшено!",
+    mdb_default_amount:"по вкусу",mdb_fallback_step1:"Подготовить все ингредиенты.",mdb_fallback_step2:"Следовать рецепту пошагово.",mdb_fallback_step3:"Сервировать и наслаждаться! 🍽️",
+    nav_swipe:"Свайп",nav_favorites:"Избранное",nav_shopping:"Список",nav_settings:"Ещё",
+    lbl_protein:"БЕЛОК",lbl_carbs:"УГЛЕВ.",lbl_fat:"ЖИРЫ",
+    min:"Мин",kcal:"kcal",recipes_loaded:"рецептов загружено!",
+  }
+};
+const LANG_OPTIONS=[{id:"de",label:"🇩🇪 Deutsch"},{id:"pl",label:"🇵🇱 Polski"},{id:"ru",label:"🇷🇺 Русский"}];
 
 const FALLBACK = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80";
 const LOGO_URL = "/foodswift-logo.png";
@@ -221,10 +378,17 @@ const LOCAL_RECIPES=[
 ];
 
 const ALLERGENS_LIST=["Gluten","Milch","Ei","Nüsse","Fisch","Soja","Schalentiere","Sesam"];
-const MOODS=["Zur Uhrzeit","Alles","Schnell","High Protein","Vegetarisch","Trending","Wenig Kalorien"];
 
 export default function FoodSwipe(){
-  const slot=getSlot(), slotInfo=slotLabel[slot], slotType=slotMap[slot];
+  const slot=getSlot(), slotType=slotMap[slot];
+
+  const [lang,setLang]=useState(()=>load("fs_lang","de"));
+  const t=key=>TRANSLATIONS[lang]?.[key]||TRANSLATIONS.de[key]||key;
+  const saveLang=l=>{setLang(l);save("fs_lang",l);};
+  const slotInfo={morning:{emoji:"🌅"},lunch:{emoji:"☀️"},snack:{emoji:"🌆"},dinner:{emoji:"🌙"}}[slot];
+  const slotSub=t(`slot_${slot}`);
+  const MOODS_T=[{id:"Zur Uhrzeit",l:t("mood_time")},{id:"Alles",l:t("mood_all")},{id:"Schnell",l:t("mood_fast")},{id:"High Protein",l:t("mood_protein")},{id:"Vegetarisch",l:t("mood_veggie")},{id:"Trending",l:t("mood_trending")},{id:"Wenig Kalorien",l:t("mood_lowcal")}];
+  const MEAL_OPTIONS_T=[{id:"breakfast",label:t("meal_breakfast")},{id:"lunch",label:t("meal_lunch")},{id:"dinner",label:t("meal_dinner")},{id:"snack",label:t("meal_snack")}];
 
   const [onboarded,setOnboarded]=useState(()=>!!load("fs_onboarded",false));
   const [obStep,setObStep]=useState(0);
@@ -318,13 +482,13 @@ export default function FoodSwipe(){
           for(let i=1;i<=20;i++){
             const name=m[`strIngredient${i}`];
             const amount=m[`strMeasure${i}`];
-            if(name&&name.trim())ings.push({name:name.trim(),amount:(amount||"").trim()||"nach Bedarf"});
+            if(name&&name.trim())ings.push({name:name.trim(),amount:(amount||"").trim()||t("mdb_default_amount")});
           }
           // Extract real steps from instructions
           const rawSteps=(m.strInstructions||"").split(/\r?\n/).filter(s=>s.trim().length>3);
-          const steps=rawSteps.length>0?rawSteps.slice(0,8):["Alle Zutaten vorbereiten.","Rezept Schritt für Schritt folgen.","Anrichten & genießen! 🍽️"];
+          const steps=rawSteps.length>0?rawSteps.slice(0,8):[t("mdb_fallback_step1"),t("mdb_fallback_step2"),t("mdb_fallback_step3")];
           return {
-            id:`mdb_${m.idMeal}`,name:m.strMeal,time:`${15+Math.floor(Math.random()*30)} Min`,
+            id:`mdb_${m.idMeal}`,name:m.strMeal,time:`${15+Math.floor(Math.random()*30)} ${t("min")}`,
             cal:300+Math.floor(Math.random()*400),
             protein:10+Math.floor(Math.random()*40),
             carbs:20+Math.floor(Math.random()*60),
@@ -332,15 +496,15 @@ export default function FoodSwipe(){
             meal:mealMap[m._cat]||["lunch","dinner"],tags:[m._cat,m.strArea||"International"],
             src:"TheMealDB",srcColor:"#e67e22",
             img:m.strMealThumb||FALLBACK,allergens:[],
-            steps,ingredients:ings.length>0?ings:[{name:m.strMeal,amount:"nach Rezept"}],
+            steps,ingredients:ings.length>0?ings:[{name:m.strMeal,amount:t("mdb_default_amount")}],
           };
         });
         setSpoonRecipes(spoon);
         setSpoonLoaded(true);
-        showToast(`🍽️ ${spoon.length} Rezepte geladen!`,"#e67e22");
+        showToast(`🍽️ ${spoon.length} ${t("recipes_loaded")}`,"#e67e22");
         setDeck(d=>shuffle([...d,...spoon]));
       }
-    }catch(e){showToast("❌ API Fehler – Internet prüfen","#ff4444");}
+    }catch(e){showToast(t("toast_api_error"),"#ff4444");}
     setSpoonLoading(false);
   };
 
@@ -360,12 +524,12 @@ export default function FoodSwipe(){
         const nameKey=current.name.toLowerCase().replace(/[^a-zäöüß0-9]/g,"");
         const alreadyLiked=p=>p.some(x=>x.name.toLowerCase().replace(/[^a-zäöüß0-9]/g,"")===nameKey);
         setLiked(p=>{
-          if(alreadyLiked(p)){showToast(`⚠️ ${current.name} ist schon gespeichert!`,"#f39c12");return p;}
+          if(alreadyLiked(p)){showToast(`⚠️ ${current.name} ${t("toast_already_saved")}`,"#f39c12");return p;}
           return [...p.filter(x=>x.id!==current.id),current];
         });
         if(!liked.some(x=>x.name.toLowerCase().replace(/[^a-zäöüß0-9]/g,"")===nameKey)){
           setShoppingList(p=>[...p,...current.ingredients.filter(i=>!p.find(x=>x.name===i.name))]);
-          showToast(`❤️ ${current.name} gespeichert!`);
+          showToast(`❤️ ${current.name} ${t("toast_saved")}`);
         }
       }
       setHistory(p=>[{...current,action:dir},...p].slice(0,50));
@@ -411,25 +575,33 @@ export default function FoodSwipe(){
         <div style={{flex:1,display:"flex",flexDirection:"column",justifyContent:"center",alignItems:"center",textAlign:"center",gap:"1rem"}}>
           <div style={{fontSize:"5rem"}}><img src={LOGO_URL} alt="FoodSwipe" style={{width:80,height:80,borderRadius:18}} onError={e=>{e.target.outerHTML="🍽️";}}/></div>
           <div style={{fontSize:"2.4rem",fontWeight:"900",background:"linear-gradient(90deg,#ff6b35,#ffcc02)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>FoodSwipe</div>
-          <div style={{color:"rgba(255,255,255,0.5)",fontSize:"1rem",lineHeight:1.6,maxWidth:"280px"}}>Swipe dich zu deinem nächsten Lieblingsgericht.</div>
-          <input value={userName} onChange={e=>setUserName(e.target.value)} placeholder="Wie heißt du?" style={{background:"rgba(255,255,255,0.1)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:"14px",color:"white",padding:"0.9rem 1.2rem",fontSize:"1rem",width:"100%",fontFamily:"inherit",textAlign:"center",outline:"none",marginTop:"1rem"}}/>
+          <div style={{color:"rgba(255,255,255,0.5)",fontSize:"1rem",lineHeight:1.6,maxWidth:"280px"}}>{t("ob_tagline")}</div>
+          <div style={{width:"100%",marginTop:"0.5rem"}}>
+            <div style={{fontSize:"0.62rem",letterSpacing:"2px",color:"rgba(255,107,53,0.9)",marginBottom:"0.6rem"}}>{t("ob_lang_title")}</div>
+            <div style={{display:"flex",gap:"0.5rem",justifyContent:"center"}}>
+              {LANG_OPTIONS.map(lo=>(
+                <button key={lo.id} onClick={()=>saveLang(lo.id)} style={{flex:1,background:lang===lo.id?"linear-gradient(135deg,#ff6b35,#ff9a3c)":"rgba(255,255,255,0.08)",border:`1px solid ${lang===lo.id?"transparent":"rgba(255,255,255,0.15)"}`,borderRadius:"12px",color:"white",padding:"0.65rem 0.5rem",cursor:"pointer",fontFamily:"inherit",fontSize:"0.85rem",fontWeight:lang===lo.id?"700":"400"}}>{lo.label}</button>
+              ))}
+            </div>
+          </div>
+          <input value={userName} onChange={e=>setUserName(e.target.value)} placeholder={t("ob_name_placeholder")} style={{background:"rgba(255,255,255,0.1)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:"14px",color:"white",padding:"0.9rem 1.2rem",fontSize:"1rem",width:"100%",fontFamily:"inherit",textAlign:"center",outline:"none",marginTop:"0.5rem"}}/>
         </div>
-        <button onClick={()=>setObStep(1)} style={{background:"linear-gradient(135deg,#ff6b35,#ff9a3c)",border:"none",borderRadius:"16px",color:"white",padding:"1.1rem",fontSize:"1rem",fontWeight:"800",cursor:"pointer",fontFamily:"inherit",boxShadow:"0 8px 30px rgba(255,107,53,0.4)"}}>Weiter →</button>
+        <button onClick={()=>setObStep(1)} style={{background:"linear-gradient(135deg,#ff6b35,#ff9a3c)",border:"none",borderRadius:"16px",color:"white",padding:"1.1rem",fontSize:"1rem",fontWeight:"800",cursor:"pointer",fontFamily:"inherit",boxShadow:"0 8px 30px rgba(255,107,53,0.4)"}}>{t("ob_next")}</button>
       </div>,
       <div key={1} style={{display:"flex",flexDirection:"column",height:"100%",padding:"2rem 1.5rem"}}>
         <div style={{flex:1}}>
-          <div style={{fontSize:"1.5rem",fontWeight:"900",marginBottom:"0.3rem"}}>So funktioniert's 👆</div>
-          <div style={{color:"rgba(255,255,255,0.4)",fontSize:"0.85rem",marginBottom:"2rem"}}>Einfach wie Tinder – nur für Essen!</div>
-          {[["👉","Rechts swipen","Magst du → kommt in Favoriten"],["👈","Links swipen","Kein Interesse → nächstes Gericht"],["❤️","Favoriten","Alle Gerichte + Kochanleitungen"],["🛒","Einkaufsliste","Zutaten werden automatisch gesammelt"]].map(([ico,t,s])=>(
-            <div key={t} style={{display:"flex",gap:"1rem",alignItems:"center",marginBottom:"1.2rem"}}>
+          <div style={{fontSize:"1.5rem",fontWeight:"900",marginBottom:"0.3rem"}}>{t("ob_how_title")}</div>
+          <div style={{color:"rgba(255,255,255,0.4)",fontSize:"0.85rem",marginBottom:"2rem"}}>{t("ob_how_sub")}</div>
+          {[["👉",t("ob_swipe_right"),t("ob_swipe_right_sub")],["👈",t("ob_swipe_left"),t("ob_swipe_left_sub")],["❤️",t("ob_favorites"),t("ob_favorites_sub")],["🛒",t("ob_shopping"),t("ob_shopping_sub")]].map(([ico,tt,s])=>(
+            <div key={tt} style={{display:"flex",gap:"1rem",alignItems:"center",marginBottom:"1.2rem"}}>
               <div style={{fontSize:"1.5rem",width:40,textAlign:"center"}}>{ico}</div>
-              <div><div style={{fontWeight:"700",fontSize:"0.9rem"}}>{t}</div><div style={{color:"rgba(255,255,255,0.4)",fontSize:"0.8rem"}}>{s}</div></div>
+              <div><div style={{fontWeight:"700",fontSize:"0.9rem"}}>{tt}</div><div style={{color:"rgba(255,255,255,0.4)",fontSize:"0.8rem"}}>{s}</div></div>
             </div>
           ))}
         </div>
         <div style={{display:"flex",gap:"0.8rem"}}>
-          <button onClick={()=>setObStep(0)} style={{flex:0.4,background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:"16px",color:"white",padding:"1rem",fontWeight:"700",cursor:"pointer",fontFamily:"inherit"}}>← Zurück</button>
-          <button onClick={()=>{save("fs_onboarded",1);save("fs_name",userName);setOnboarded(true);}} style={{flex:1,background:"linear-gradient(135deg,#ff6b35,#ff9a3c)",border:"none",borderRadius:"16px",color:"white",padding:"1rem",fontSize:"0.95rem",fontWeight:"800",cursor:"pointer",fontFamily:"inherit",boxShadow:"0 8px 30px rgba(255,107,53,0.4)"}}>Los geht's 🚀</button>
+          <button onClick={()=>setObStep(0)} style={{flex:0.4,background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:"16px",color:"white",padding:"1rem",fontWeight:"700",cursor:"pointer",fontFamily:"inherit"}}>{t("ob_back")}</button>
+          <button onClick={()=>{save("fs_onboarded",1);save("fs_name",userName);setOnboarded(true);}} style={{flex:1,background:"linear-gradient(135deg,#ff6b35,#ff9a3c)",border:"none",borderRadius:"16px",color:"white",padding:"1rem",fontSize:"0.95rem",fontWeight:"800",cursor:"pointer",fontFamily:"inherit",boxShadow:"0 8px 30px rgba(255,107,53,0.4)"}}>{t("ob_start")}</button>
         </div>
       </div>,
     ];
@@ -466,16 +638,16 @@ export default function FoodSwipe(){
           </div>
           <div style={{padding:"1rem 1.4rem"}}>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"0.6rem",marginBottom:"1rem"}}>
-              {[{l:"Protein",v:r.protein,c:"#4ade80",icon:"💪"},{l:"Carbs",v:r.carbs,c:"#60a5fa",icon:"⚡"},{l:"Fett",v:r.fat,c:"#fb923c",icon:"🔥"}].map(m=>(
+              {[{l:t("lbl_protein"),v:r.protein,c:"#4ade80",icon:"💪"},{l:t("lbl_carbs"),v:r.carbs,c:"#60a5fa",icon:"⚡"},{l:t("lbl_fat"),v:r.fat,c:"#fb923c",icon:"🔥"}].map(m=>(
                 <div key={m.l} style={{background:"rgba(255,255,255,0.08)",borderRadius:"14px",padding:"0.8rem 0.5rem",textAlign:"center",border:"1px solid rgba(255,255,255,0.1)"}}>
                   <div style={{fontSize:"1.1rem"}}>{m.icon}</div>
                   <div style={{fontSize:"1.2rem",fontWeight:"900",color:m.c}}>{m.v?`${m.v}g`:"—"}</div>
-                  <div style={{fontSize:"0.58rem",color:"rgba(255,255,255,0.4)",letterSpacing:"1px"}}>{m.l.toUpperCase()}</div>
+                  <div style={{fontSize:"0.58rem",color:"rgba(255,255,255,0.4)",letterSpacing:"1px"}}>{m.l}</div>
                 </div>
               ))}
             </div>
             <div style={{display:"flex",background:"rgba(255,255,255,0.07)",borderRadius:"12px",padding:"4px",marginBottom:"1rem"}}>
-              {[["ingredients","🛒 Zutaten"],["steps","👨‍🍳 Zubereitung"]].map(([tab,label])=>(
+              {[["ingredients",t("detail_ingredients")],["steps",t("detail_steps")]].map(([tab,label])=>(
                 <button key={tab} onClick={()=>setActiveTab(tab)} style={{flex:1,background:activeTab===tab?"linear-gradient(135deg,#ff6b35,#ff9a3c)":"transparent",border:"none",borderRadius:"9px",color:"white",padding:"0.55rem",fontSize:"0.82rem",fontWeight:activeTab===tab?"800":"500",cursor:"pointer",fontFamily:"inherit",transition:"all 0.2s"}}>{label}</button>
               ))}
             </div>
@@ -491,7 +663,7 @@ export default function FoodSwipe(){
             )}
             {activeTab==="steps"&&(
               <div style={{marginBottom:"1rem"}}>
-                {(r.steps?.length?r.steps:["Zutaten vorbereiten.","Schritt für Schritt kochen.","Guten Appetit! 🍽️"]).map((step,i)=>(
+                {(r.steps?.length?r.steps:[t("mdb_fallback_step1"),t("mdb_fallback_step2"),t("mdb_fallback_step3")]).map((step,i)=>(
                   <div key={i} style={{display:"flex",gap:"0.9rem",marginBottom:"0.9rem",background:"rgba(255,255,255,0.05)",borderRadius:"14px",padding:"0.9rem 1rem",border:"1px solid rgba(255,255,255,0.07)"}}>
                     <div style={{minWidth:"28px",height:"28px",borderRadius:"50%",background:"linear-gradient(135deg,#ff6b35,#ff9a3c)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"0.75rem",fontWeight:"900",flexShrink:0}}>{i+1}</div>
                     <span style={{fontSize:"0.9rem",lineHeight:1.55,color:"rgba(255,255,255,0.88)"}}>{step}</span>
@@ -499,12 +671,12 @@ export default function FoodSwipe(){
                 ))}
               </div>
             )}
-            <button onClick={()=>{isLiked?setLiked(p=>p.filter(x=>x.id!==r.id)):setLiked(p=>[...p.filter(x=>x.id!==r.id),r]);showToast(isLiked?"🗑 Entfernt":"❤️ Favorit!",isLiked?"#ff6666":"#4ade80");}}
+            <button onClick={()=>{isLiked?setLiked(p=>p.filter(x=>x.id!==r.id)):setLiked(p=>[...p.filter(x=>x.id!==r.id),r]);showToast(isLiked?t("detail_removed"):t("detail_saved_fav"),isLiked?"#ff6666":"#4ade80");}}
               style={{width:"100%",background:isLiked?"rgba(255,68,68,0.15)":"linear-gradient(135deg,#ff6b35,#ff9a3c)",border:isLiked?"1px solid rgba(255,68,68,0.3)":"none",borderRadius:"16px",color:isLiked?"#ff8888":"white",padding:"1rem",fontSize:"0.95rem",fontWeight:"700",cursor:"pointer",fontFamily:"inherit",marginBottom:"0.8rem"}}>
-              {isLiked?"🗑 Aus Favoriten entfernen":"❤️ Zu Favoriten hinzufügen"}
+              {isLiked?t("detail_remove_fav"):t("detail_add_fav")}
             </button>
-            {r._custom&&<button onClick={()=>{setCustomRecipes(p=>p.filter(x=>x.id!==r.id));setScreen(detailFrom);}} style={{width:"100%",background:"rgba(255,68,68,0.1)",border:"1px solid rgba(255,68,68,0.2)",borderRadius:"16px",color:"rgba(255,120,120,0.8)",padding:"0.9rem",fontSize:"0.85rem",fontWeight:"600",cursor:"pointer",fontFamily:"inherit",marginBottom:"0.8rem"}}>🗑 Eigenes Gericht löschen</button>}
-            <button onClick={()=>setScreen(detailFrom)} style={{width:"100%",background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:"16px",color:"white",padding:"0.9rem",cursor:"pointer",fontFamily:"inherit",fontWeight:"600",marginBottom:"2rem"}}>← Zurück</button>
+            {r._custom&&<button onClick={()=>{setCustomRecipes(p=>p.filter(x=>x.id!==r.id));setScreen(detailFrom);}} style={{width:"100%",background:"rgba(255,68,68,0.1)",border:"1px solid rgba(255,68,68,0.2)",borderRadius:"16px",color:"rgba(255,120,120,0.8)",padding:"0.9rem",fontSize:"0.85rem",fontWeight:"600",cursor:"pointer",fontFamily:"inherit",marginBottom:"0.8rem"}}>{t("detail_delete_custom")}</button>}
+            <button onClick={()=>setScreen(detailFrom)} style={{width:"100%",background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:"16px",color:"white",padding:"0.9rem",cursor:"pointer",fontFamily:"inherit",fontWeight:"600",marginBottom:"2rem"}}>{t("detail_back")}</button>
           </div>
         </div>
         {FONT}
@@ -514,12 +686,7 @@ export default function FoodSwipe(){
 
   // ── ADD DISH ────────────────────────────────────────────────────────────
   if(showAddDish){
-    const MEAL_OPTIONS=[
-      {id:"breakfast",label:"🌅 Frühstück"},
-      {id:"lunch",    label:"☀️ Mittagessen"},
-      {id:"dinner",   label:"🌙 Abendessen"},
-      {id:"snack",    label:"🍎 Snack"},
-    ];
+    const MEAL_OPTIONS=MEAL_OPTIONS_T;
     const toggleMeal=m=>{
       const cur=newDish.meal;
       const updated=cur.includes(m)?cur.filter(x=>x!==m):[...cur,m];
@@ -662,7 +829,7 @@ Wichtige Regeln:
         <BG img={current?.img}/>
         <div style={{position:"relative",zIndex:1,padding:"1.2rem 1.4rem"}}>
           <div style={{display:"flex",alignItems:"center",gap:"1rem",marginBottom:"1.5rem"}}>
-            <BackBtn to="swipe" onBack={()=>setShowAddDish(false)}/><h1 style={{margin:0,fontSize:"1.4rem",fontWeight:"800"}}>Eigenes Gericht ➕</h1>
+            <BackBtn to="swipe" onBack={()=>setShowAddDish(false)}/><h1 style={{margin:0,fontSize:"1.4rem",fontWeight:"800"}}>{t("add_title")}</h1>
           </div>
 
           {/* 🤖 AI REZEPT-SCAN */}
@@ -670,10 +837,10 @@ Wichtige Regeln:
             <div style={{fontSize:"0.62rem",letterSpacing:"1.5px",color:claudeKey?"rgba(96,165,250,0.9)":"rgba(255,255,255,0.25)",marginBottom:"0.5rem"}}>🤖 REZEPT PER FOTO ERKENNEN</div>
             {claudeKey?(
               <>
-                <div style={{color:"rgba(255,255,255,0.5)",fontSize:"0.75rem",marginBottom:"0.7rem",lineHeight:1.5}}>Fotografiere eine Rezeptkarte (HelloFresh, Chefkoch etc.) – Name, Zutaten & Schritte werden automatisch erkannt!</div>
+                <div style={{color:"rgba(255,255,255,0.5)",fontSize:"0.75rem",marginBottom:"0.7rem",lineHeight:1.5}}>{t("set_ai_sub")}</div>
                 <div style={{display:"flex",gap:"0.5rem"}}>
                   <label style={{flex:1,background:scanning?"rgba(255,255,255,0.05)":"linear-gradient(135deg,#60a5fa,#8b5cf6)",border:"none",borderRadius:"12px",color:"white",padding:"0.7rem",fontSize:"0.82rem",fontWeight:"700",cursor:scanning?"default":"pointer",textAlign:"center",display:"block",opacity:scanning?0.5:1}}>
-                    {scanning?"⏳ Wird analysiert...":"📋 Rezeptkarte scannen"}
+                    {scanning?t("add_scanning"):t("add_scan")}
                     <input type="file" accept="image/*" capture="environment" onChange={handleRecipeScan} disabled={scanning} style={{display:"none"}}/>
                   </label>
                   <label style={{flex:1,background:scanning?"rgba(255,255,255,0.05)":"rgba(255,255,255,0.08)",border:"1px solid rgba(139,92,246,0.3)",borderRadius:"12px",color:"rgba(255,255,255,0.7)",padding:"0.7rem",fontSize:"0.82rem",cursor:scanning?"default":"pointer",textAlign:"center",display:"block",opacity:scanning?0.5:1}}>
@@ -683,7 +850,7 @@ Wichtige Regeln:
                 </div>
               </>
             ):(
-              <div style={{color:"rgba(255,255,255,0.3)",fontSize:"0.78rem",lineHeight:1.5}}>KI-Scan nicht verfügbar. Claude API Key in <strong style={{color:"rgba(255,255,255,0.5)"}}>⚙️ Einstellungen</strong> hinterlegen um Rezepte automatisch zu erkennen.</div>
+              <div style={{color:"rgba(255,255,255,0.3)",fontSize:"0.78rem",lineHeight:1.5}}>{t("set_ai_without")}</div>
             )}
           </div>
 
@@ -701,23 +868,23 @@ Wichtige Regeln:
               {newDish.img&&<img src={newDish.img} alt="preview" style={{width:72,height:72,borderRadius:12,objectFit:"cover",flexShrink:0}}/>}
               <div style={{display:"flex",flexDirection:"column",gap:"0.4rem",flex:1}}>
                 <label style={{background:"linear-gradient(135deg,#8e44ad,#9b59b6)",border:"none",borderRadius:"12px",color:"white",padding:"0.65rem",fontSize:"0.82rem",fontWeight:"700",cursor:"pointer",textAlign:"center",display:"block"}}>
-                  📷 Foto aufnehmen
+                  {t("add_photo")}
                   <input type="file" accept="image/*" capture="environment" onChange={handlePhoto} style={{display:"none"}}/>
                 </label>
                 <label style={{background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.15)",borderRadius:"12px",color:"rgba(255,255,255,0.7)",padding:"0.65rem",fontSize:"0.82rem",cursor:"pointer",textAlign:"center",display:"block"}}>
-                  🖼️ Aus Galerie
+                  {t("add_gallery")}
                   <input type="file" accept="image/*" onChange={handlePhoto} style={{display:"none"}}/>
                 </label>
               </div>
             </div>
           </div>
 
-          {inp("GERICHTNAME *","name","z.B. Mamas Bolognese")}
-          {inp("KOCHZEIT","time","z.B. 30 Min")}
+          {inp(t("add_name"),"name",t("add_name_ph"))}
+          {inp(t("add_time"),"time",t("add_time_ph"))}
 
           {/* MAHLZEIT-ZUORDNUNG */}
           <div style={{marginBottom:"1rem"}}>
-            <div style={{fontSize:"0.62rem",letterSpacing:"1.5px",color:"rgba(255,255,255,0.35)",marginBottom:"0.5rem"}}>MAHLZEIT-KATEGORIE *</div>
+            <div style={{fontSize:"0.62rem",letterSpacing:"1.5px",color:"rgba(255,255,255,0.35)",marginBottom:"0.5rem"}}>{t("add_meal")}</div>
             <div style={{display:"flex",flexWrap:"wrap",gap:"0.5rem"}}>
               {MEAL_OPTIONS.map(({id,label})=>(
                 <button key={id} onClick={()=>toggleMeal(id)}
@@ -729,9 +896,9 @@ Wichtige Regeln:
           </div>
 
           {/* NÄHRWERTE */}
-          <div style={{fontSize:"0.62rem",letterSpacing:"1.5px",color:"rgba(255,255,255,0.35)",marginBottom:"0.5rem"}}>NÄHRWERTE (pro Portion)</div>
+          <div style={{fontSize:"0.62rem",letterSpacing:"1.5px",color:"rgba(255,255,255,0.35)",marginBottom:"0.5rem"}}>{t("add_nutrition")}</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0.5rem",marginBottom:"1rem"}}>
-            {[["KALORIEN (kcal)","cal","z.B. 520"],["PROTEIN (g)","protein","z.B. 35"],["KOHLENHYDRATE (g)","carbs","z.B. 45"],["FETT (g)","fat","z.B. 18"]].map(([label,key,ph])=>(
+            {[[t("add_cal"),"cal","520"],[t("add_protein"),"protein","35"],[t("add_carbs"),"carbs","45"],[t("add_fat"),"fat","18"]].map(([label,key,ph])=>(
               <div key={key}>
                 <div style={{fontSize:"0.58rem",letterSpacing:"1px",color:"rgba(255,255,255,0.3)",marginBottom:"0.25rem"}}>{label}</div>
                 <input value={newDish[key]} onChange={e=>setNewDish(p=>({...p,[key]:e.target.value}))} placeholder={ph} type="number"
@@ -743,7 +910,7 @@ Wichtige Regeln:
           {/* Nährwert Vorschau */}
           {(newDish.protein||newDish.carbs||newDish.fat)&&(
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"0.4rem",marginBottom:"1rem"}}>
-              {[{l:"Protein",v:newDish.protein||0,c:"#4ade80"},{l:"Carbs",v:newDish.carbs||0,c:"#60a5fa"},{l:"Fett",v:newDish.fat||0,c:"#fb923c"}].map(m=>(
+              {[{l:t("lbl_protein"),v:newDish.protein||0,c:"#4ade80"},{l:t("lbl_carbs"),v:newDish.carbs||0,c:"#60a5fa"},{l:t("lbl_fat"),v:newDish.fat||0,c:"#fb923c"}].map(m=>(
                 <div key={m.l} style={{background:"rgba(255,255,255,0.06)",borderRadius:"10px",padding:"0.5rem",textAlign:"center"}}>
                   <div style={{fontSize:"1rem",fontWeight:"800",color:m.c}}>{m.v}g</div>
                   <div style={{fontSize:"0.55rem",color:"rgba(255,255,255,0.3)"}}>{m.l.toUpperCase()}</div>
@@ -753,20 +920,20 @@ Wichtige Regeln:
           )}
 
           <div style={{marginBottom:"0.75rem"}}>
-            <div style={{fontSize:"0.62rem",letterSpacing:"1.5px",color:"rgba(255,255,255,0.35)",marginBottom:"0.3rem"}}>ZUTATEN (kommagetrennt: "Nudeln 200g, Hackfleisch 300g")</div>
+            <div style={{fontSize:"0.62rem",letterSpacing:"1.5px",color:"rgba(255,255,255,0.35)",marginBottom:"0.3rem"}}>{t("add_ingredients")}</div>
             <textarea value={newDish.ingredients} onChange={e=>setNewDish(p=>({...p,ingredients:e.target.value}))} rows={2}
-              placeholder="Nudeln 200g, Hackfleisch 300g, Zwiebel 1 Stück"
+              placeholder={t("add_ingredients_ph")}
               style={{width:"100%",background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:"12px",color:"white",padding:"0.7rem 1rem",fontSize:"0.9rem",fontFamily:"inherit",outline:"none",resize:"none",boxSizing:"border-box"}}/>
           </div>
           <div style={{marginBottom:"1.2rem"}}>
-            <div style={{fontSize:"0.62rem",letterSpacing:"1.5px",color:"rgba(255,255,255,0.35)",marginBottom:"0.3rem"}}>ZUBEREITUNG (jeder Schritt neue Zeile)</div>
+            <div style={{fontSize:"0.62rem",letterSpacing:"1.5px",color:"rgba(255,255,255,0.35)",marginBottom:"0.3rem"}}>{t("add_steps")}</div>
             <textarea value={newDish.steps} onChange={e=>setNewDish(p=>({...p,steps:e.target.value}))} rows={4}
-              placeholder={"Zwiebeln anbraten.\nHackfleisch dazu.\nSauce köcheln lassen.\nServieren!"}
+              placeholder={t("add_steps_ph")}
               style={{width:"100%",background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:"12px",color:"white",padding:"0.7rem 1rem",fontSize:"0.9rem",fontFamily:"inherit",outline:"none",resize:"none",boxSizing:"border-box"}}/>
           </div>
           <button onClick={()=>{
-            if(!newDish.name)return showToast("❌ Bitte Gerichtname eingeben!","#ff4444");
-            if(!newDish.meal||newDish.meal.length===0)return showToast("❌ Bitte Mahlzeit wählen!","#ff4444");
+            if(!newDish.name)return showToast(t("add_err_name"),"#ff4444");
+            if(!newDish.meal||newDish.meal.length===0)return showToast(t("add_err_meal"),"#ff4444");
             const dish={
               id:Date.now(),
               name:newDish.name,
@@ -794,11 +961,11 @@ Wichtige Regeln:
             setNewDish({name:"",time:"15 Min",cal:"",protein:"",carbs:"",fat:"",img:"",ingredients:"",steps:"",meal:["dinner"]});
             setShowAddDish(false);
             applyFilter(moodFilter,selectedAllergens);
-            showToast("✅ Gericht hinzugefügt!");
+            showToast(t("add_success"));
           }} style={{width:"100%",background:"linear-gradient(135deg,#ff6b35,#ff9a3c)",border:"none",borderRadius:"16px",color:"white",padding:"1.1rem",fontSize:"1rem",fontWeight:"800",cursor:"pointer",fontFamily:"inherit",marginBottom:"0.8rem"}}>
-            Gericht hinzufügen ✅
+            {t("add_save")}
           </button>
-          <button onClick={()=>setShowAddDish(false)} style={{width:"100%",background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:"16px",color:"white",padding:"1rem",fontFamily:"inherit",cursor:"pointer",marginBottom:"2rem"}}>Abbrechen</button>
+          <button onClick={()=>setShowAddDish(false)} style={{width:"100%",background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:"16px",color:"white",padding:"1rem",fontFamily:"inherit",cursor:"pointer",marginBottom:"2rem"}}>{t("add_cancel")}</button>
         </div>
         {FONT}
       </div>
@@ -812,11 +979,11 @@ Wichtige Regeln:
       <div style={{position:"relative",zIndex:1,padding:"1.4rem"}}>
         <div style={{display:"flex",alignItems:"center",gap:"1rem",marginBottom:"1.5rem"}}>
           <BackBtn to="swipe"/>
-          <h1 style={{margin:0,fontSize:"1.5rem",fontWeight:"800"}}>Einkaufsliste 🛒</h1>
-          {shoppingList.length>0&&<span style={{background:"#ff6b35",borderRadius:"50px",padding:"0.2rem 0.75rem",fontSize:"0.75rem",fontWeight:"700",marginLeft:"auto"}}>{shoppingList.filter(i=>!checkedItems[i.name]).length} offen</span>}
+          <h1 style={{margin:0,fontSize:"1.5rem",fontWeight:"800"}}>{t("shop_title")}</h1>
+          {shoppingList.length>0&&<span style={{background:"#ff6b35",borderRadius:"50px",padding:"0.2rem 0.75rem",fontSize:"0.75rem",fontWeight:"700",marginLeft:"auto"}}>{shoppingList.filter(i=>!checkedItems[i.name]).length} {t("shop_open")}</span>}
         </div>
         {shoppingList.length===0
-          ?<div style={{textAlign:"center",color:"rgba(255,255,255,0.3)",marginTop:"6rem"}}><div style={{fontSize:"3rem"}}>🛒</div><p>Swipe Gerichte nach rechts!</p></div>
+          ?<div style={{textAlign:"center",color:"rgba(255,255,255,0.3)",marginTop:"6rem"}}><div style={{fontSize:"3rem"}}>🛒</div><p>{t("shop_empty_sub")}</p></div>
           :<>
             {shoppingList.map((item,i)=>(
               <div key={i} style={{display:"flex",alignItems:"center",gap:"1rem",padding:"0.9rem 1rem",background:"rgba(255,255,255,0.07)",backdropFilter:"blur(10px)",borderRadius:"14px",marginBottom:"0.5rem",border:"1px solid rgba(255,255,255,0.08)"}}>
@@ -828,7 +995,7 @@ Wichtige Regeln:
                 <button onClick={()=>setShoppingList(p=>p.filter((_,j)=>j!==i))} style={{background:"none",border:"none",color:"rgba(255,255,255,0.3)",fontSize:"1rem",cursor:"pointer"}}>✕</button>
               </div>
             ))}
-            <button onClick={()=>{setShoppingList([]);setCheckedItems({});}} style={{width:"100%",marginTop:"1rem",background:"rgba(255,68,68,0.12)",border:"1px solid rgba(255,68,68,0.2)",borderRadius:"14px",color:"rgba(255,120,120,0.8)",padding:"0.9rem",cursor:"pointer",fontFamily:"inherit",fontWeight:"600",marginBottom:"2rem"}}>🗑 Liste leeren</button>
+            <button onClick={()=>{setShoppingList([]);setCheckedItems({});}} style={{width:"100%",marginTop:"1rem",background:"rgba(255,68,68,0.12)",border:"1px solid rgba(255,68,68,0.2)",borderRadius:"14px",color:"rgba(255,120,120,0.8)",padding:"0.9rem",cursor:"pointer",fontFamily:"inherit",fontWeight:"600",marginBottom:"2rem"}}>{t("shop_clear")}</button>
           </>}
       </div>
       {FONT}
@@ -842,11 +1009,11 @@ Wichtige Regeln:
       <div style={{position:"relative",zIndex:1,padding:"1.4rem"}}>
         <div style={{display:"flex",alignItems:"center",gap:"1rem",marginBottom:"1.5rem"}}>
           <BackBtn to="swipe"/>
-          <h1 style={{margin:0,fontSize:"1.5rem",fontWeight:"800"}}>Favoriten ❤️</h1>
+          <h1 style={{margin:0,fontSize:"1.5rem",fontWeight:"800"}}>{t("fav_title")}</h1>
           {liked.length>0&&<span style={{marginLeft:"auto",background:"rgba(255,107,53,0.3)",borderRadius:"50px",padding:"0.2rem 0.75rem",fontSize:"0.75rem",fontWeight:"700",color:"#ff9a3c"}}>{liked.length}</span>}
         </div>
         {liked.length===0
-          ?<div style={{textAlign:"center",color:"rgba(255,255,255,0.3)",marginTop:"4rem"}}><div style={{fontSize:"3rem"}}>🍽️</div><p>Noch keine Favoriten – swipe rechts!</p></div>
+          ?<div style={{textAlign:"center",color:"rgba(255,255,255,0.3)",marginTop:"4rem"}}><div style={{fontSize:"3rem"}}>🍽️</div><p>{t("fav_empty_sub")}</p></div>
           :<div style={{display:"grid",gap:"0.8rem",marginBottom:"1.5rem"}}>
             {liked.map((r,i)=>(
               <div key={i} onClick={()=>{setDetailRecipe(r);setDetailFrom("favorites");setScreen("detail");setActiveTab("ingredients");}} style={{borderRadius:"16px",overflow:"hidden",background:"rgba(255,255,255,0.07)",backdropFilter:"blur(10px)",display:"flex",height:"90px",border:"1px solid rgba(255,255,255,0.1)",cursor:"pointer"}}>
@@ -861,7 +1028,7 @@ Wichtige Regeln:
             ))}
           </div>}
         {history.length>0&&<>
-          <div style={{fontSize:"0.62rem",letterSpacing:"2px",color:"rgba(255,255,255,0.3)",marginBottom:"0.8rem"}}>VERLAUF – antippen zum Öffnen</div>
+          <div style={{fontSize:"0.62rem",letterSpacing:"2px",color:"rgba(255,255,255,0.3)",marginBottom:"0.8rem"}}>{t("fav_history")}</div>
           {history.map((r,i)=>(
             <div key={i} style={{display:"flex",alignItems:"center",gap:"0.8rem",padding:"0.5rem",borderRadius:"12px",marginBottom:"0.3rem",background:"rgba(255,255,255,0.03)",cursor:"pointer"}}
               onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,0.08)"}
@@ -872,7 +1039,7 @@ Wichtige Regeln:
               <button onClick={()=>setHistory(p=>p.filter((_,j)=>j!==i))} style={{background:"none",border:"none",color:"rgba(255,255,255,0.25)",fontSize:"0.85rem",cursor:"pointer"}}>✕</button>
             </div>
           ))}
-          <button onClick={()=>setHistory([])} style={{width:"100%",marginTop:"0.8rem",background:"rgba(255,68,68,0.1)",border:"1px solid rgba(255,68,68,0.2)",borderRadius:"12px",color:"rgba(255,120,120,0.7)",padding:"0.75rem",cursor:"pointer",fontFamily:"inherit",fontSize:"0.85rem",marginBottom:"2rem"}}>Verlauf löschen</button>
+          <button onClick={()=>setHistory([])} style={{width:"100%",marginTop:"0.8rem",background:"rgba(255,68,68,0.1)",border:"1px solid rgba(255,68,68,0.2)",borderRadius:"12px",color:"rgba(255,120,120,0.7)",padding:"0.75rem",cursor:"pointer",fontFamily:"inherit",fontSize:"0.85rem",marginBottom:"2rem"}}>{t("fav_clear_history")}</button>
         </>}
       </div>
       {FONT}
@@ -886,29 +1053,38 @@ Wichtige Regeln:
       <div style={{position:"relative",zIndex:1,padding:"1.4rem"}}>
         <div style={{display:"flex",alignItems:"center",gap:"1rem",marginBottom:"1.5rem"}}>
           <BackBtn to="swipe"/>
-          <h1 style={{margin:0,fontSize:"1.5rem",fontWeight:"800"}}>Einstellungen ⚙️</h1>
+          <h1 style={{margin:0,fontSize:"1.5rem",fontWeight:"800"}}>{t("set_title")}</h1>
         </div>
         <div style={{background:"rgba(255,255,255,0.07)",borderRadius:"16px",padding:"1rem",marginBottom:"1rem",border:"1px solid rgba(255,255,255,0.1)"}}>
-          <div style={{fontSize:"0.62rem",letterSpacing:"2px",color:"rgba(255,107,53,0.9)",marginBottom:"0.6rem"}}>PROFIL</div>
-          <div style={{color:"rgba(255,255,255,0.6)"}}>👋 Hey <strong style={{color:"white"}}>{userName||"Foodie"}</strong>!</div>
-          <div style={{color:"rgba(255,255,255,0.35)",fontSize:"0.78rem",marginTop:"0.25rem"}}>{allRecipes.length} Rezepte · {liked.length} Favoriten · {seenIds.length} gesehen</div>
+          <div style={{fontSize:"0.62rem",letterSpacing:"2px",color:"rgba(255,107,53,0.9)",marginBottom:"0.6rem"}}>{t("set_profile")}</div>
+          <div style={{color:"rgba(255,255,255,0.6)"}}>👋 {t("set_hey")} <strong style={{color:"white"}}>{userName||"Foodie"}</strong>!</div>
+          <div style={{color:"rgba(255,255,255,0.35)",fontSize:"0.78rem",marginTop:"0.25rem"}}>{allRecipes.length} {t("set_recipes")} · {liked.length} {t("set_favs")} · {seenIds.length} {t("set_seen")}</div>
         </div>
         <div style={{background:"rgba(255,255,255,0.07)",borderRadius:"16px",padding:"1rem",marginBottom:"1rem",border:"1px solid rgba(255,255,255,0.1)"}}>
-          <div style={{fontSize:"0.62rem",letterSpacing:"2px",color:"rgba(255,107,53,0.9)",marginBottom:"0.5rem"}}>🌍 THEMEALDB – KOSTENLOSE REZEPTE</div>
-          <div style={{color:"rgba(255,255,255,0.4)",fontSize:"0.78rem",marginBottom:"0.8rem",lineHeight:1.5}}>100% gratis, kein Account nötig! Lade internationale Rezepte direkt in die App.</div>
+          <div style={{fontSize:"0.62rem",letterSpacing:"2px",color:"rgba(255,107,53,0.9)",marginBottom:"0.5rem"}}>{t("set_mealdb_title")}</div>
+          <div style={{color:"rgba(255,255,255,0.4)",fontSize:"0.78rem",marginBottom:"0.8rem",lineHeight:1.5}}>{t("set_mealdb_sub")}</div>
           <button onClick={()=>fetchSpoonacular()} disabled={spoonLoading}
             style={{width:"100%",background:spoonLoaded?"rgba(46,204,113,0.2)":"linear-gradient(135deg,#e67e22,#f39c12)",border:spoonLoaded?"1px solid rgba(46,204,113,0.3)":"none",borderRadius:"10px",color:"white",padding:"0.75rem",fontSize:"0.85rem",fontWeight:"700",cursor:spoonLoading?"default":"pointer",fontFamily:"inherit",opacity:spoonLoading?0.5:1}}>
-            {spoonLoading?"⏳ Lädt...":spoonLoaded?`✅ ${spoonRecipes.length} Rezepte geladen`:"🍽️ Rezepte laden (gratis!)"}
+            {spoonLoading?t("set_mealdb_loading"):spoonLoaded?`✅ ${spoonRecipes.length} ${t("set_mealdb_loaded")}`:t("set_mealdb_btn")}
           </button>
         </div>
         <div style={{background:"rgba(255,255,255,0.07)",borderRadius:"16px",padding:"1rem",marginBottom:"1rem",border:"1px solid rgba(96,165,250,0.15)"}}>
-          <div style={{fontSize:"0.62rem",letterSpacing:"2px",color:"rgba(96,165,250,0.9)",marginBottom:"0.5rem"}}>🤖 KI-REZEPT-SCANNER (optional)</div>
-          <div style={{color:"rgba(255,255,255,0.4)",fontSize:"0.78rem",marginBottom:"0.8rem",lineHeight:1.5}}>Fotografiere Rezeptkarten (HelloFresh etc.) und Claude erkennt Zutaten & Schritte automatisch. Key auf <strong style={{color:"#60a5fa"}}>console.anthropic.com</strong> erstellen.</div>
+          <div style={{fontSize:"0.62rem",letterSpacing:"2px",color:"rgba(96,165,250,0.9)",marginBottom:"0.5rem"}}>{t("set_ai_title")}</div>
+          <div style={{color:"rgba(255,255,255,0.4)",fontSize:"0.78rem",marginBottom:"0.8rem",lineHeight:1.5}}>{t("set_ai_sub")} {t("set_ai_sub2")} <strong style={{color:"#60a5fa"}}>console.anthropic.com</strong> {t("set_ai_sub3")}</div>
           <input value={claudeKey} onChange={e=>setClaudeKey(e.target.value)} placeholder="sk-ant-api03-..." type="password"
             style={{width:"100%",background:"rgba(255,255,255,0.08)",border:`1px solid ${claudeKey?"rgba(96,165,250,0.3)":"rgba(255,255,255,0.15)"}`,borderRadius:"10px",color:"white",padding:"0.7rem 1rem",fontSize:"0.85rem",fontFamily:"inherit",outline:"none",boxSizing:"border-box",marginBottom:"0.5rem"}}/>
-          <div style={{color:claudeKey?"rgba(96,165,250,0.7)":"rgba(255,255,255,0.25)",fontSize:"0.72rem"}}>{claudeKey?"✅ API Key gespeichert – Scan bereit!":"Ohne Key: manuell Rezepte eingeben"}</div>
+          <div style={{color:claudeKey?"rgba(96,165,250,0.7)":"rgba(255,255,255,0.25)",fontSize:"0.72rem"}}>{claudeKey?t("set_ai_saved"):t("set_ai_without")}</div>
         </div>
-        <div style={{fontSize:"0.62rem",letterSpacing:"2px",color:"rgba(255,107,53,0.9)",marginBottom:"0.8rem"}}>ALLERGIEN AUSSCHLIESSEN</div>
+        {/* LANGUAGE PICKER */}
+        <div style={{background:"rgba(255,255,255,0.07)",borderRadius:"16px",padding:"1rem",marginBottom:"1rem",border:"1px solid rgba(255,255,255,0.1)"}}>
+          <div style={{fontSize:"0.62rem",letterSpacing:"2px",color:"rgba(255,107,53,0.9)",marginBottom:"0.6rem"}}>{t("set_lang_title")}</div>
+          <div style={{display:"flex",gap:"0.5rem"}}>
+            {LANG_OPTIONS.map(lo=>(
+              <button key={lo.id} onClick={()=>saveLang(lo.id)} style={{flex:1,background:lang===lo.id?"linear-gradient(135deg,#ff6b35,#ff9a3c)":"rgba(255,255,255,0.08)",border:`1px solid ${lang===lo.id?"transparent":"rgba(255,255,255,0.15)"}`,borderRadius:"10px",color:"white",padding:"0.65rem 0.5rem",cursor:"pointer",fontFamily:"inherit",fontSize:"0.85rem",fontWeight:lang===lo.id?"700":"400"}}>{lo.label}</button>
+            ))}
+          </div>
+        </div>
+        <div style={{fontSize:"0.62rem",letterSpacing:"2px",color:"rgba(255,107,53,0.9)",marginBottom:"0.8rem"}}>{t("set_allergens")}</div>
         <div style={{display:"flex",flexWrap:"wrap",gap:"0.6rem",marginBottom:"0.8rem"}}>
           {[...new Set([...ALLERGENS_LIST,...selectedAllergens])].map(a=>(
             <button key={a} onClick={()=>{const n=selectedAllergens.includes(a)?selectedAllergens.filter(x=>x!==a):[...selectedAllergens,a];setSelectedAllergens(n);applyFilter(moodFilter,n);}}
@@ -918,11 +1094,11 @@ Wichtige Regeln:
           ))}
         </div>
         <div style={{display:"flex",gap:"0.5rem",marginBottom:"1.5rem"}}>
-          <input id="customAllergen" placeholder="Eigene Allergie eingeben..." style={{flex:1,background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.15)",borderRadius:"10px",color:"white",padding:"0.6rem 0.8rem",fontSize:"0.85rem",fontFamily:"inherit",outline:"none",boxSizing:"border-box"}}/>
-          <button onClick={()=>{const inp=document.getElementById("customAllergen");const v=inp?.value?.trim();if(!v)return;if(!selectedAllergens.includes(v)){const n=[...selectedAllergens,v];setSelectedAllergens(n);applyFilter(moodFilter,n);showToast(`✅ "${v}" hinzugefügt`);}inp.value="";}} style={{background:"linear-gradient(135deg,#ff6b35,#ff9a3c)",border:"none",borderRadius:"10px",color:"white",padding:"0.6rem 1rem",fontSize:"0.85rem",fontWeight:"700",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>+ Hinzufügen</button>
+          <input id="customAllergen" placeholder={t("set_allergen_input")} style={{flex:1,background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.15)",borderRadius:"10px",color:"white",padding:"0.6rem 0.8rem",fontSize:"0.85rem",fontFamily:"inherit",outline:"none",boxSizing:"border-box"}}/>
+          <button onClick={()=>{const inp=document.getElementById("customAllergen");const v=inp?.value?.trim();if(!v)return;if(!selectedAllergens.includes(v)){const n=[...selectedAllergens,v];setSelectedAllergens(n);applyFilter(moodFilter,n);showToast(`✅ "${v}" ${t("toast_allergen_added")}`);}inp.value="";}} style={{background:"linear-gradient(135deg,#ff6b35,#ff9a3c)",border:"none",borderRadius:"10px",color:"white",padding:"0.6rem 1rem",fontSize:"0.85rem",fontWeight:"700",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>{t("set_allergen_add")}</button>
         </div>
-        <button onClick={()=>{setSeenIds([]);showToast("🔀 Alle Gerichte zurückgesetzt!");}} style={{width:"100%",background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:"14px",color:"rgba(255,255,255,0.5)",padding:"0.8rem",cursor:"pointer",fontFamily:"inherit",marginBottom:"0.8rem"}}>🔀 Gesehene zurücksetzen</button>
-        <button onClick={()=>{localStorage.removeItem("fs_onboarded");setOnboarded(false);setObStep(0);}} style={{width:"100%",background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:"14px",color:"rgba(255,255,255,0.3)",padding:"0.8rem",cursor:"pointer",fontFamily:"inherit",marginBottom:"2rem"}}>Onboarding wiederholen</button>
+        <button onClick={()=>{setSeenIds([]);showToast(t("toast_reset"));}} style={{width:"100%",background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:"14px",color:"rgba(255,255,255,0.5)",padding:"0.8rem",cursor:"pointer",fontFamily:"inherit",marginBottom:"0.8rem"}}>{t("set_reset_seen")}</button>
+        <button onClick={()=>{localStorage.removeItem("fs_onboarded");setOnboarded(false);setObStep(0);}} style={{width:"100%",background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:"14px",color:"rgba(255,255,255,0.3)",padding:"0.8rem",cursor:"pointer",fontFamily:"inherit",marginBottom:"2rem"}}>{t("set_redo_onboarding")}</button>
       </div>
       {FONT}
     </div>
@@ -951,16 +1127,16 @@ Wichtige Regeln:
           </div>
         </div>
         <div style={{padding:"0.3rem 1rem 0.35rem",display:"flex",gap:"0.4rem",overflowX:"auto",scrollbarWidth:"none",flexShrink:0}}>
-          {MOODS.map(m=>(
-            <button key={m} onClick={()=>{setMoodFilter(m);applyFilter(m,selectedAllergens);}}
-              style={{background:moodFilter===m?"linear-gradient(135deg,#ff6b35,#ff9a3c)":"rgba(255,255,255,0.1)",backdropFilter:"blur(10px)",border:`1px solid ${moodFilter===m?"transparent":"rgba(255,255,255,0.1)"}`,borderRadius:"50px",color:"white",padding:"0.3rem 0.9rem",cursor:"pointer",whiteSpace:"nowrap",fontFamily:"inherit",fontSize:"0.73rem",fontWeight:moodFilter===m?"700":"400",flexShrink:0}}>
-              {m==="Zur Uhrzeit"?`${slotInfo.emoji} ${m}`:m}
+          {MOODS_T.map(m=>(
+            <button key={m.id} onClick={()=>{setMoodFilter(m.id);applyFilter(m.id,selectedAllergens);}}
+              style={{background:moodFilter===m.id?"linear-gradient(135deg,#ff6b35,#ff9a3c)":"rgba(255,255,255,0.1)",backdropFilter:"blur(10px)",border:`1px solid ${moodFilter===m.id?"transparent":"rgba(255,255,255,0.1)"}`,borderRadius:"50px",color:"white",padding:"0.3rem 0.9rem",cursor:"pointer",whiteSpace:"nowrap",fontFamily:"inherit",fontSize:"0.73rem",fontWeight:moodFilter===m.id?"700":"400",flexShrink:0}}>
+              {m.id==="Zur Uhrzeit"?`${slotInfo.emoji} ${m.l}`:m.l}
             </button>
           ))}
-          <button onClick={()=>setShowAddDish(true)} style={{background:"rgba(142,68,173,0.3)",backdropFilter:"blur(10px)",border:"1px solid rgba(142,68,173,0.4)",borderRadius:"50px",color:"#c39bd3",padding:"0.3rem 0.9rem",cursor:"pointer",whiteSpace:"nowrap",fontFamily:"inherit",fontSize:"0.73rem",fontWeight:"700",flexShrink:0}}>➕ Eigenes</button>
+          <button onClick={()=>setShowAddDish(true)} style={{background:"rgba(142,68,173,0.3)",backdropFilter:"blur(10px)",border:"1px solid rgba(142,68,173,0.4)",borderRadius:"50px",color:"#c39bd3",padding:"0.3rem 0.9rem",cursor:"pointer",whiteSpace:"nowrap",fontFamily:"inherit",fontSize:"0.73rem",fontWeight:"700",flexShrink:0}}>{t("swipe_own")}</button>
         </div>
         <div style={{padding:"0 1.2rem 0.1rem",display:"flex",alignItems:"center",gap:"0.5rem"}}>
-          <span style={{fontSize:"0.68rem",color:"rgba(255,255,255,0.22)"}}>{allRecipes.length} Gerichte</span>
+          <span style={{fontSize:"0.68rem",color:"rgba(255,255,255,0.22)"}}>{allRecipes.length} {t("swipe_dishes")}</span>
           {spoonLoaded&&<span style={{fontSize:"0.65rem",background:"rgba(230,126,34,0.2)",color:"#e67e22",borderRadius:"20px",padding:"0.1rem 0.5rem"}}>+MealDB</span>}
         </div>
         <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",padding:"0.2rem 1.2rem",position:"relative",minHeight:0}}>
@@ -979,9 +1155,9 @@ Wichtige Regeln:
                   onError={e=>{e.target.src=FALLBACK;}}/>
                 <div style={{position:"absolute",inset:0,background:"linear-gradient(to bottom,rgba(0,0,0,0.05) 0%,transparent 35%,transparent 45%,rgba(4,4,10,1) 100%)"}}/>
                 <div style={{position:"absolute",top:"1rem",right:"1rem",background:current.srcColor,borderRadius:"20px",padding:"0.22rem 0.8rem",fontSize:"0.68rem",fontWeight:"800",color:"white"}}>{current.src}</div>
-                <div style={{position:"absolute",top:"1.1rem",left:"1.1rem",border:"2.5px solid #ff4444",borderRadius:"8px",padding:"0.2rem 0.7rem",color:"#ff4444",fontWeight:"900",fontSize:"1rem",letterSpacing:"2px",opacity:nopeOp,transform:"rotate(-14deg)",background:"rgba(0,0,0,0.4)",backdropFilter:"blur(4px)"}}>NOPE</div>
-                <div style={{position:"absolute",top:"1.1rem",left:"5rem",border:"2.5px solid #4ade80",borderRadius:"8px",padding:"0.2rem 0.7rem",color:"#4ade80",fontWeight:"900",fontSize:"1rem",letterSpacing:"2px",opacity:likeOp,transform:"rotate(14deg)",background:"rgba(0,0,0,0.4)",backdropFilter:"blur(4px)"}}>LECKER!</div>
-                <button onClick={()=>{setDetailRecipe(current);setDetailFrom("swipe");setScreen("detail");setActiveTab("ingredients");}} style={{position:"absolute",bottom:"3.5rem",right:"0.8rem",background:"rgba(0,0,0,0.5)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:"20px",color:"rgba(255,255,255,0.7)",padding:"0.25rem 0.7rem",fontSize:"0.68rem",cursor:"pointer",fontFamily:"inherit",backdropFilter:"blur(10px)"}}>👨‍🍳 Rezept</button>
+                <div style={{position:"absolute",top:"1.1rem",left:"1.1rem",border:"2.5px solid #ff4444",borderRadius:"8px",padding:"0.2rem 0.7rem",color:"#ff4444",fontWeight:"900",fontSize:"1rem",letterSpacing:"2px",opacity:nopeOp,transform:"rotate(-14deg)",background:"rgba(0,0,0,0.4)",backdropFilter:"blur(4px)"}}>{t("swipe_nope")}</div>
+                <div style={{position:"absolute",top:"1.1rem",left:"5rem",border:"2.5px solid #4ade80",borderRadius:"8px",padding:"0.2rem 0.7rem",color:"#4ade80",fontWeight:"900",fontSize:"1rem",letterSpacing:"2px",opacity:likeOp,transform:"rotate(14deg)",background:"rgba(0,0,0,0.4)",backdropFilter:"blur(4px)"}}>{t("swipe_like")}</div>
+                <button onClick={()=>{setDetailRecipe(current);setDetailFrom("swipe");setScreen("detail");setActiveTab("ingredients");}} style={{position:"absolute",bottom:"3.5rem",right:"0.8rem",background:"rgba(0,0,0,0.5)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:"20px",color:"rgba(255,255,255,0.7)",padding:"0.25rem 0.7rem",fontSize:"0.68rem",cursor:"pointer",fontFamily:"inherit",backdropFilter:"blur(10px)"}}>{t("swipe_recipe")}</button>
                 <div style={{position:"absolute",bottom:"1rem",left:"1.1rem",right:"1.1rem"}}>
                   <div style={{fontSize:"1.55rem",fontWeight:"900",lineHeight:1.15}}>{current.name}</div>
                   <div style={{display:"flex",gap:"0.9rem",marginTop:"0.3rem",fontSize:"0.8rem",color:"rgba(255,255,255,0.7)"}}>
@@ -991,10 +1167,10 @@ Wichtige Regeln:
               </div>
               <div style={{background:"rgba(8,8,18,0.96)",backdropFilter:"blur(20px)",padding:"0.75rem 1.1rem 0.9rem"}}>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"0.5rem",marginBottom:"0.65rem"}}>
-                  {[{l:"Protein",v:current.protein,c:"#4ade80"},{l:"Carbs",v:current.carbs,c:"#60a5fa"},{l:"Fett",v:current.fat,c:"#fb923c"}].map(m=>(
+                  {[{l:t("lbl_protein"),v:current.protein,c:"#4ade80"},{l:t("lbl_carbs"),v:current.carbs,c:"#60a5fa"},{l:t("lbl_fat"),v:current.fat,c:"#fb923c"}].map(m=>(
                     <div key={m.l} style={{background:"rgba(255,255,255,0.06)",borderRadius:"10px",padding:"0.38rem",textAlign:"center"}}>
                       <div style={{fontSize:"0.92rem",fontWeight:"800",color:m.c}}>{m.v?`${m.v}g`:"—"}</div>
-                      <div style={{fontSize:"0.56rem",color:"rgba(255,255,255,0.3)",letterSpacing:"1px"}}>{m.l.toUpperCase()}</div>
+                      <div style={{fontSize:"0.56rem",color:"rgba(255,255,255,0.3)",letterSpacing:"1px"}}>{m.l}</div>
                     </div>
                   ))}
                 </div>
@@ -1009,8 +1185,8 @@ Wichtige Regeln:
           ):(
             <div style={{textAlign:"center",color:"rgba(255,255,255,0.4)",padding:"2rem"}}>
               <div style={{fontSize:"3rem",marginBottom:"1rem"}}>🍴</div>
-              <div style={{fontSize:"1.1rem",fontWeight:"700"}}>Keine Rezepte</div>
-              <div style={{fontSize:"0.85rem",marginTop:"0.5rem"}}>Anderen Filter wählen!</div>
+              <div style={{fontSize:"1.1rem",fontWeight:"700"}}>{t("swipe_no_recipes")}</div>
+              <div style={{fontSize:"0.85rem",marginTop:"0.5rem"}}>{t("swipe_change_filter")}</div>
             </div>
           )}
         </div>
@@ -1018,7 +1194,7 @@ Wichtige Regeln:
           <button onClick={()=>doSwipe("left")} style={{width:60,height:60,borderRadius:"50%",background:"rgba(255,255,255,0.08)",backdropFilter:"blur(10px)",border:"2px solid rgba(255,68,68,0.7)",color:"#ff6666",fontSize:"1.4rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.15s",boxShadow:"0 4px 20px rgba(255,68,68,0.2)"}}
             onMouseEnter={e=>{e.currentTarget.style.transform="scale(1.12)";e.currentTarget.style.background="rgba(255,68,68,0.2)";}}
             onMouseLeave={e=>{e.currentTarget.style.transform="scale(1)";e.currentTarget.style.background="rgba(255,255,255,0.08)";}}>✕</button>
-          <button onClick={()=>{setDeck(shuffle(buildDeck(moodFilter,selectedAllergens,seenIds)));setDeckIndex(0);showToast("🔀 Neu gemischt!");}} style={{width:42,height:42,borderRadius:"50%",background:"rgba(255,255,255,0.08)",backdropFilter:"blur(10px)",border:"1px solid rgba(255,255,255,0.15)",color:"#ffcc02",fontSize:"0.95rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>🔀</button>
+          <button onClick={()=>{setDeck(shuffle(buildDeck(moodFilter,selectedAllergens,seenIds)));setDeckIndex(0);showToast(t("toast_shuffled"));}} style={{width:42,height:42,borderRadius:"50%",background:"rgba(255,255,255,0.08)",backdropFilter:"blur(10px)",border:"1px solid rgba(255,255,255,0.15)",color:"#ffcc02",fontSize:"0.95rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>🔀</button>
           <button onClick={()=>doSwipe("right")} style={{width:60,height:60,borderRadius:"50%",background:"linear-gradient(135deg,#ff6b35,#ff9a3c)",border:"none",color:"white",fontSize:"1.4rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.15s",boxShadow:"0 4px 28px rgba(255,107,53,0.5)"}}
             onMouseEnter={e=>e.currentTarget.style.transform="scale(1.12)"}
             onMouseLeave={e=>e.currentTarget.style.transform="scale(1)"}>❤️</button>

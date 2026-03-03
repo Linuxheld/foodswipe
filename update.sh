@@ -1,12 +1,12 @@
 #!/bin/bash
-# FoodSwipe Update Script v3 – mit Logo-Icons
+# FoodSwipe Update Script v4
 # Verwendung: ./update.sh "Beschreibung der Änderung"
 
 FOODSWIPE_DIR="$HOME/foodswipe"
 FILES_DIR="$HOME/Downloads/files"
 MSG="${1:-Update}"
 
-echo "🍽️  FoodSwipe Updater v3"
+echo "🍽️  FoodSwipe Updater v4"
 echo "================================"
 
 # Dateien kopieren
@@ -15,14 +15,12 @@ echo "📁 Kopiere Dateien..."
 [ -f "$FILES_DIR/index.css" ]            && cp "$FILES_DIR/index.css"            "$FOODSWIPE_DIR/src/index.css"            && echo "  ✅ index.css"
 [ -f "$FILES_DIR/index.html" ]           && cp "$FILES_DIR/index.html"           "$FOODSWIPE_DIR/index.html"               && echo "  ✅ index.html"
 [ -f "$FILES_DIR/manifest.json" ]        && cp "$FILES_DIR/manifest.json"        "$FOODSWIPE_DIR/public/manifest.json"     && echo "  ✅ manifest.json"
-[ -f "$FILES_DIR/foodswipe-icon.svg" ]   && cp "$FILES_DIR/foodswipe-icon.svg"   "$FOODSWIPE_DIR/public/foodswipe-icon.svg" && echo "  ✅ icon.svg"
-[ -f "$FILES_DIR/foodswift-logo.png" ]   && cp "$FILES_DIR/foodswift-logo.png"   "$FOODSWIPE_DIR/public/foodswift-logo.png" && echo "  ✅ logo.png"
-
-# Icon-Dateien für Homescreen
-[ -f "$FILES_DIR/icon-192.png" ]           && cp "$FILES_DIR/icon-192.png"           "$FOODSWIPE_DIR/public/icon-192.png"           && echo "  ✅ icon-192.png"
-[ -f "$FILES_DIR/icon-512.png" ]           && cp "$FILES_DIR/icon-512.png"           "$FOODSWIPE_DIR/public/icon-512.png"           && echo "  ✅ icon-512.png"
+[ -f "$FILES_DIR/foodswipe-icon.svg" ]   && cp "$FILES_DIR/foodswipe-icon.svg"   "$FOODSWIPE_DIR/public/foodswipe-icon.svg"&& echo "  ✅ icon.svg"
+[ -f "$FILES_DIR/foodswift-logo.png" ]   && cp "$FILES_DIR/foodswift-logo.png"   "$FOODSWIPE_DIR/public/foodswift-logo.png"&& echo "  ✅ logo.png"
+[ -f "$FILES_DIR/icon-192.png" ]         && cp "$FILES_DIR/icon-192.png"         "$FOODSWIPE_DIR/public/icon-192.png"      && echo "  ✅ icon-192.png"
+[ -f "$FILES_DIR/icon-512.png" ]         && cp "$FILES_DIR/icon-512.png"         "$FOODSWIPE_DIR/public/icon-512.png"      && echo "  ✅ icon-512.png"
 [ -f "$FILES_DIR/apple-touch-icon-180.png" ] && cp "$FILES_DIR/apple-touch-icon-180.png" "$FOODSWIPE_DIR/public/apple-touch-icon-180.png" && echo "  ✅ apple-touch-icon"
-[ -f "$FILES_DIR/favicon-32.png" ]         && cp "$FILES_DIR/favicon-32.png"         "$FOODSWIPE_DIR/public/favicon-32.png"         && echo "  ✅ favicon"
+[ -f "$FILES_DIR/favicon-32.png" ]       && cp "$FILES_DIR/favicon-32.png"       "$FOODSWIPE_DIR/public/favicon-32.png"    && echo "  ✅ favicon-32.png"
 
 # Git Push
 echo ""
@@ -31,7 +29,7 @@ cd "$FOODSWIPE_DIR"
 
 if git diff --quiet && git diff --cached --quiet; then
   echo "  ⚠️  Keine Änderungen gefunden!"
-  echo "  → Hast du die neuen Dateien in ~/Downloads/files/ abgelegt?"
+  echo "  → Hast du die Dateien in ~/Downloads/files/ abgelegt?"
   exit 1
 fi
 
