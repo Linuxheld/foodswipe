@@ -40,8 +40,8 @@ const IMG = {
   pho:            "https://images.unsplash.com/photo-1582878826629-33b69f5a9f41?w=800&q=80",
   biryani:        "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=800&q=80",
   falafel:        "https://images.unsplash.com/photo-1580584126903-c17d41830450?w=800&q=80",
-  risotto:        "https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=800&q=80",
-  omelette:       "https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=800&q=80",
+  risotto:        "https://images.unsplash.com/photo-1633964913295-ceb43826e7c1?w=800&q=80",
+  omelette:       "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=800&q=80",
   lemon_chicken:  "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=800&q=80",
   gyoza:          "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?w=800&q=80",
   hummus:         "https://images.unsplash.com/photo-1606756790138-261d2b21cd75?w=800&q=80",
@@ -61,7 +61,7 @@ const IMG = {
   eggs_benedict:  "https://images.unsplash.com/photo-1608039829572-78524f79c4c7?w=800&q=80",
   paella:         "https://images.unsplash.com/photo-1534080564583-6be75777b70a?w=800&q=80",
   lo_mein:        "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=800&q=80",
-  quiche:         "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=800&q=80",
+  quiche:         "https://images.unsplash.com/photo-1592417817098-8fd3d9eb14a5?w=800&q=80",
   bircher:        "https://images.unsplash.com/photo-1495214783159-3503fd1b572d?w=800&q=80",
 };
 
@@ -239,6 +239,7 @@ export default function FoodSwipe(){
   const [spoonRecipes,setSpoonRecipes]=useState([]);
   const [spoonLoading,setSpoonLoading]=useState(false);
   const [spoonLoaded,setSpoonLoaded]=useState(false);
+  const [claudeKey,setClaudeKey]=useState(()=>load("fs_claude_key",""));
 
   useEffect(()=>{save("fs_liked",liked);},[liked]);
   useEffect(()=>{save("fs_history",history);},[history]);
@@ -247,6 +248,7 @@ export default function FoodSwipe(){
   useEffect(()=>{save("fs_allergens",selectedAllergens);},[selectedAllergens]);
   useEffect(()=>{save("fs_custom",customRecipes);},[customRecipes]);
   useEffect(()=>{save("fs_seen",seenIds);},[seenIds]);
+  useEffect(()=>{save("fs_claude_key",claudeKey);},[claudeKey]);
 
   const allRecipes=[...LOCAL_RECIPES,...customRecipes,...spoonRecipes];
 
@@ -257,8 +259,16 @@ export default function FoodSwipe(){
       if(mood==="Schnell")return parseInt(r.time)<=20;
       if(mood==="High Protein")return r.protein>=35;
       if(mood==="Vegetarisch")return r.tags.some(t=>t.toLowerCase().includes("vegetar"));
-      if(mood==="Trending")return r.src==="YouTube";
+      if(mood==="Trending")return r.src==="YouTube"||r.src==="TheMealDB";
       if(mood==="Wenig Kalorien")return r.cal<420;
+      return true;
+    });
+    // Deduplicate by normalized name
+    const seen2=new Set();
+    list=list.filter(r=>{
+      const key=r.name.toLowerCase().replace(/[^a-zäöüß0-9]/g,"");
+      if(seen2.has(key))return false;
+      seen2.add(key);
       return true;
     });
     const unseen=shuffle(list.filter(r=>!seen.includes(String(r.id))));
@@ -291,26 +301,40 @@ export default function FoodSwipe(){
     setSpoonLoading(true);
     try{
       const cats=["Beef","Chicken","Seafood","Pasta","Vegetarian","Breakfast","Dessert","Lamb","Pork","Side"];
-      let allMeals=[];
+      let allIds=[];
       for(const cat of cats.slice(0,6)){
         const res=await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?c=${cat}`);
         const data=await res.json();
-        if(data.meals)allMeals.push(...data.meals.slice(0,8).map(m=>({...m,_cat:cat})));
+        if(data.meals)allIds.push(...data.meals.slice(0,8).map(m=>({id:m.idMeal,thumb:m.strMealThumb,_cat:cat})));
       }
-      if(allMeals.length){
+      // Fetch full details for each meal (ingredients + instructions)
+      const detailPromises=allIds.map(m=>fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${m.id}`).then(r=>r.json()).then(d=>({...d.meals?.[0],_cat:m._cat})).catch(()=>null));
+      const details=(await Promise.all(detailPromises)).filter(Boolean);
+      if(details.length){
         const mealMap={Beef:["lunch","dinner"],Chicken:["lunch","dinner"],Seafood:["lunch","dinner"],Pasta:["lunch","dinner"],Vegetarian:["lunch","dinner","snack"],Breakfast:["breakfast"],Dessert:["snack"],Lamb:["dinner"],Pork:["lunch","dinner"],Side:["lunch","snack"]};
-        const spoon=allMeals.map(m=>({
-          id:`mdb_${m.idMeal}`,name:m.strMeal,time:`${15+Math.floor(Math.random()*30)} Min`,
-          cal:300+Math.floor(Math.random()*400),
-          protein:10+Math.floor(Math.random()*40),
-          carbs:20+Math.floor(Math.random()*60),
-          fat:5+Math.floor(Math.random()*30),
-          meal:mealMap[m._cat]||["lunch","dinner"],tags:[m._cat],
-          src:"TheMealDB",srcColor:"#e67e22",
-          img:m.strMealThumb||FALLBACK,allergens:[],
-          steps:["Alle Zutaten vorbereiten.","Rezept Schritt für Schritt folgen.","Anrichten & genießen! 🍽️"],
-          ingredients:[{name:m.strMeal.split(" ")[0],amount:"nach Rezept"}],
-        }));
+        const spoon=details.map(m=>{
+          // Extract real ingredients
+          const ings=[];
+          for(let i=1;i<=20;i++){
+            const name=m[`strIngredient${i}`];
+            const amount=m[`strMeasure${i}`];
+            if(name&&name.trim())ings.push({name:name.trim(),amount:(amount||"").trim()||"nach Bedarf"});
+          }
+          // Extract real steps from instructions
+          const rawSteps=(m.strInstructions||"").split(/\r?\n/).filter(s=>s.trim().length>3);
+          const steps=rawSteps.length>0?rawSteps.slice(0,8):["Alle Zutaten vorbereiten.","Rezept Schritt für Schritt folgen.","Anrichten & genießen! 🍽️"];
+          return {
+            id:`mdb_${m.idMeal}`,name:m.strMeal,time:`${15+Math.floor(Math.random()*30)} Min`,
+            cal:300+Math.floor(Math.random()*400),
+            protein:10+Math.floor(Math.random()*40),
+            carbs:20+Math.floor(Math.random()*60),
+            fat:5+Math.floor(Math.random()*30),
+            meal:mealMap[m._cat]||["lunch","dinner"],tags:[m._cat,m.strArea||"International"],
+            src:"TheMealDB",srcColor:"#e67e22",
+            img:m.strMealThumb||FALLBACK,allergens:[],
+            steps,ingredients:ings.length>0?ings:[{name:m.strMeal,amount:"nach Rezept"}],
+          };
+        });
         setSpoonRecipes(spoon);
         setSpoonLoaded(true);
         showToast(`🍽️ ${spoon.length} Rezepte geladen!`,"#e67e22");
@@ -333,9 +357,16 @@ export default function FoodSwipe(){
     setSeenIds(newSeen);
     setTimeout(()=>{
       if(dir==="right"){
-        setLiked(p=>[...p.filter(x=>x.id!==current.id),current]);
-        setShoppingList(p=>[...p,...current.ingredients.filter(i=>!p.find(x=>x.name===i.name))]);
-        showToast(`❤️ ${current.name} gespeichert!`);
+        const nameKey=current.name.toLowerCase().replace(/[^a-zäöüß0-9]/g,"");
+        const alreadyLiked=p=>p.some(x=>x.name.toLowerCase().replace(/[^a-zäöüß0-9]/g,"")===nameKey);
+        setLiked(p=>{
+          if(alreadyLiked(p)){showToast(`⚠️ ${current.name} ist schon gespeichert!`,"#f39c12");return p;}
+          return [...p.filter(x=>x.id!==current.id),current];
+        });
+        if(!liked.some(x=>x.name.toLowerCase().replace(/[^a-zäöüß0-9]/g,"")===nameKey)){
+          setShoppingList(p=>[...p,...current.ingredients.filter(i=>!p.find(x=>x.name===i.name))]);
+          showToast(`❤️ ${current.name} gespeichert!`);
+        }
       }
       setHistory(p=>[{...current,action:dir},...p].slice(0,50));
       setDeckIndex(i=>{
@@ -494,11 +525,129 @@ export default function FoodSwipe(){
       const updated=cur.includes(m)?cur.filter(x=>x!==m):[...cur,m];
       if(updated.length>0)setNewDish(p=>({...p,meal:updated}));
     };
+    // Photo optimization: crop, resize, warm food-photography look
+    const optimizePhoto=(dataUrl)=>new Promise(resolve=>{
+      const img=new Image();
+      img.onload=()=>{
+        const c=document.createElement("canvas");
+        const size=Math.min(img.width,img.height,1200);
+        const sx=(img.width-size)/2,sy=(img.height-size)/2;
+        c.width=800;c.height=800;
+        const ctx=c.getContext("2d");
+        // Draw cropped & resized
+        ctx.drawImage(img,sx,sy,size,size,0,0,800,800);
+        // Apply food-style color grading via pixel manipulation
+        const imageData=ctx.getImageData(0,0,800,800);
+        const d=imageData.data;
+        for(let i=0;i<d.length;i+=4){
+          // Brightness +5%
+          let r=d[i]*1.05, g=d[i+1]*1.05, b=d[i+2]*1.05;
+          // Warm shift: boost reds slightly, reduce blues slightly
+          r=r*1.06; g=g*1.02; b=b*0.96;
+          // Contrast boost (10%)
+          r=((r/255-0.5)*1.1+0.5)*255;
+          g=((g/255-0.5)*1.1+0.5)*255;
+          b=((b/255-0.5)*1.1+0.5)*255;
+          // Saturation boost (15%)
+          const avg=(r+g+b)/3;
+          r=avg+(r-avg)*1.15;
+          g=avg+(g-avg)*1.15;
+          b=avg+(b-avg)*1.15;
+          d[i]=Math.max(0,Math.min(255,r));
+          d[i+1]=Math.max(0,Math.min(255,g));
+          d[i+2]=Math.max(0,Math.min(255,b));
+        }
+        ctx.putImageData(imageData,0,0);
+        // Subtle warm vignette
+        const grad=ctx.createRadialGradient(400,400,200,400,400,500);
+        grad.addColorStop(0,"rgba(0,0,0,0)");
+        grad.addColorStop(1,"rgba(20,10,0,0.2)");
+        ctx.fillStyle=grad;
+        ctx.fillRect(0,0,800,800);
+        resolve(c.toDataURL("image/jpeg",0.85));
+      };
+      img.src=dataUrl;
+    });
     const handlePhoto=e=>{
       const file=e.target.files[0];
       if(!file)return;
       const reader=new FileReader();
-      reader.onload=ev=>setNewDish(p=>({...p,img:ev.target.result}));
+      reader.onload=async ev=>{
+        showToast("📸 Foto wird optimiert...","#60a5fa");
+        const optimized=await optimizePhoto(ev.target.result);
+        setNewDish(p=>({...p,img:optimized}));
+        showToast("✅ Foto optimiert!","#4ade80");
+      };
+      reader.readAsDataURL(file);
+    };
+    // AI Recipe Scan: analyze photo with Claude Vision to extract full recipe
+    const [scanning,setScanning]=useState(false);
+    const handleRecipeScan=async e=>{
+      const file=e.target.files[0];
+      if(!file)return;
+      if(!claudeKey){showToast("⚠️ Bitte Claude API Key in Einstellungen eingeben","#f39c12");return;}
+      setScanning(true);
+      showToast("🤖 Rezept wird erkannt...","#60a5fa");
+      const reader=new FileReader();
+      reader.onload=async ev=>{
+        const base64=ev.target.result.split(",")[1];
+        const mediaType=file.type||"image/jpeg";
+        // Also optimize and set as dish photo
+        const optimized=await optimizePhoto(ev.target.result);
+        setNewDish(p=>({...p,img:optimized}));
+        try{
+          const res=await fetch("https://api.anthropic.com/v1/messages",{
+            method:"POST",
+            headers:{
+              "Content-Type":"application/json",
+              "x-api-key":claudeKey,
+              "anthropic-version":"2023-06-01",
+              "anthropic-dangerous-direct-browser-access":"true"
+            },
+            body:JSON.stringify({
+              model:"claude-sonnet-4-20250514",
+              max_tokens:2000,
+              messages:[{role:"user",content:[
+                {type:"image",source:{type:"base64",media_type:mediaType,data:base64}},
+                {type:"text",text:`Du bist ein Rezept-Scanner. Analysiere dieses Foto genau. Es kann eine Rezeptkarte (HelloFresh, Chefkoch etc.), ein Screenshot, oder ein Foto von einem Gericht sein.
+
+Extrahiere ALLE sichtbaren Informationen und antworte NUR mit diesem JSON (keine Backticks, kein Text davor/danach):
+{"name":"Gerichtname","time":"z.B. 25 Min","cal":520,"protein":35,"carbs":45,"fat":18,"ingredients":"Zutat1 Menge1, Zutat2 Menge2, Zutat3 Menge3","steps":"Schritt 1 ausführlich.\\nSchritt 2 ausführlich.\\nSchritt 3 ausführlich.","meal":["lunch","dinner"]}
+
+Wichtige Regeln:
+- Wenn Zutaten auf dem Foto sichtbar sind: übernimm sie ALLE mit Mengenangaben
+- Wenn Zubereitungsschritte sichtbar sind: übernimm sie wörtlich und ausführlich
+- Wenn nur ein Foto vom Gericht ohne Text zu sehen ist: erkenne das Gericht und schreibe ein passendes Rezept mit typischen Zutaten und Schritten
+- Schätze Nährwerte realistisch basierend auf den Zutaten
+- meal: ["breakfast"] für Frühstück, ["lunch"] für Mittag, ["dinner"] für Abend, ["snack"] für Snacks
+- Schreibe auf Deutsch`}
+              ]}]
+            })
+          });
+          if(!res.ok){const errText=await res.text();throw new Error(`API ${res.status}: ${errText}`);}
+          const data=await res.json();
+          const text=data.content?.map(c=>c.text||"").join("")||"";
+          const clean=text.replace(/```json|```/g,"").trim();
+          const parsed=JSON.parse(clean);
+          setNewDish(p=>({
+            ...p,
+            name:parsed.name||p.name,
+            time:parsed.time||p.time,
+            cal:String(parsed.cal||p.cal),
+            protein:String(parsed.protein||p.protein),
+            carbs:String(parsed.carbs||p.carbs),
+            fat:String(parsed.fat||p.fat),
+            ingredients:parsed.ingredients||p.ingredients,
+            steps:parsed.steps||p.steps,
+            meal:Array.isArray(parsed.meal)?parsed.meal:p.meal,
+          }));
+          showToast("✅ Rezept erkannt! Prüfe & ergänze die Daten.","#4ade80");
+        }catch(err){
+          console.error("Scan error:",err);
+          showToast("⚠️ Konnte Rezept nicht lesen – füll manuell aus","#f39c12");
+        }
+        setScanning(false);
+      };
       reader.readAsDataURL(file);
     };
     const inp=(label,key,ph,type="text")=>(
@@ -516,9 +665,38 @@ export default function FoodSwipe(){
             <BackBtn to="swipe" onBack={()=>setShowAddDish(false)}/><h1 style={{margin:0,fontSize:"1.4rem",fontWeight:"800"}}>Eigenes Gericht ➕</h1>
           </div>
 
-          {/* FOTO UPLOAD */}
+          {/* 🤖 AI REZEPT-SCAN */}
+          <div style={{marginBottom:"1.2rem",background:claudeKey?"linear-gradient(135deg,rgba(96,165,250,0.15),rgba(139,92,246,0.15))":"rgba(255,255,255,0.04)",borderRadius:"16px",padding:"1rem",border:`1px solid ${claudeKey?"rgba(96,165,250,0.25)":"rgba(255,255,255,0.08)"}`}}>
+            <div style={{fontSize:"0.62rem",letterSpacing:"1.5px",color:claudeKey?"rgba(96,165,250,0.9)":"rgba(255,255,255,0.25)",marginBottom:"0.5rem"}}>🤖 REZEPT PER FOTO ERKENNEN</div>
+            {claudeKey?(
+              <>
+                <div style={{color:"rgba(255,255,255,0.5)",fontSize:"0.75rem",marginBottom:"0.7rem",lineHeight:1.5}}>Fotografiere eine Rezeptkarte (HelloFresh, Chefkoch etc.) – Name, Zutaten & Schritte werden automatisch erkannt!</div>
+                <div style={{display:"flex",gap:"0.5rem"}}>
+                  <label style={{flex:1,background:scanning?"rgba(255,255,255,0.05)":"linear-gradient(135deg,#60a5fa,#8b5cf6)",border:"none",borderRadius:"12px",color:"white",padding:"0.7rem",fontSize:"0.82rem",fontWeight:"700",cursor:scanning?"default":"pointer",textAlign:"center",display:"block",opacity:scanning?0.5:1}}>
+                    {scanning?"⏳ Wird analysiert...":"📋 Rezeptkarte scannen"}
+                    <input type="file" accept="image/*" capture="environment" onChange={handleRecipeScan} disabled={scanning} style={{display:"none"}}/>
+                  </label>
+                  <label style={{flex:1,background:scanning?"rgba(255,255,255,0.05)":"rgba(255,255,255,0.08)",border:"1px solid rgba(139,92,246,0.3)",borderRadius:"12px",color:"rgba(255,255,255,0.7)",padding:"0.7rem",fontSize:"0.82rem",cursor:scanning?"default":"pointer",textAlign:"center",display:"block",opacity:scanning?0.5:1}}>
+                    {scanning?"⏳ ...":"🖼️ Foto aus Galerie"}
+                    <input type="file" accept="image/*" onChange={handleRecipeScan} disabled={scanning} style={{display:"none"}}/>
+                  </label>
+                </div>
+              </>
+            ):(
+              <div style={{color:"rgba(255,255,255,0.3)",fontSize:"0.78rem",lineHeight:1.5}}>KI-Scan nicht verfügbar. Claude API Key in <strong style={{color:"rgba(255,255,255,0.5)"}}>⚙️ Einstellungen</strong> hinterlegen um Rezepte automatisch zu erkennen.</div>
+            )}
+          </div>
+
+          <div style={{position:"relative",marginBottom:"1.2rem"}}>
+            <div style={{position:"absolute",left:"50%",transform:"translateX(-50%)",top:"-0.1rem",background:"#07070f",padding:"0 0.8rem",zIndex:1}}>
+              <span style={{fontSize:"0.65rem",color:"rgba(255,255,255,0.2)",letterSpacing:"2px"}}>ODER MANUELL</span>
+            </div>
+            <div style={{borderTop:"1px solid rgba(255,255,255,0.08)",marginTop:"0.5rem"}}/>
+          </div>
+
+          {/* FOTO UPLOAD (manuell) */}
           <div style={{marginBottom:"1rem"}}>
-            <div style={{fontSize:"0.62rem",letterSpacing:"1.5px",color:"rgba(255,255,255,0.35)",marginBottom:"0.5rem"}}>FOTO</div>
+            <div style={{fontSize:"0.62rem",letterSpacing:"1.5px",color:"rgba(255,255,255,0.35)",marginBottom:"0.5rem"}}>FOTO (wird automatisch optimiert)</div>
             <div style={{display:"flex",gap:"0.6rem",alignItems:"flex-start"}}>
               {newDish.img&&<img src={newDish.img} alt="preview" style={{width:72,height:72,borderRadius:12,objectFit:"cover",flexShrink:0}}/>}
               <div style={{display:"flex",flexDirection:"column",gap:"0.4rem",flex:1}}>
@@ -723,14 +901,25 @@ export default function FoodSwipe(){
             {spoonLoading?"⏳ Lädt...":spoonLoaded?`✅ ${spoonRecipes.length} Rezepte geladen`:"🍽️ Rezepte laden (gratis!)"}
           </button>
         </div>
+        <div style={{background:"rgba(255,255,255,0.07)",borderRadius:"16px",padding:"1rem",marginBottom:"1rem",border:"1px solid rgba(96,165,250,0.15)"}}>
+          <div style={{fontSize:"0.62rem",letterSpacing:"2px",color:"rgba(96,165,250,0.9)",marginBottom:"0.5rem"}}>🤖 KI-REZEPT-SCANNER (optional)</div>
+          <div style={{color:"rgba(255,255,255,0.4)",fontSize:"0.78rem",marginBottom:"0.8rem",lineHeight:1.5}}>Fotografiere Rezeptkarten (HelloFresh etc.) und Claude erkennt Zutaten & Schritte automatisch. Key auf <strong style={{color:"#60a5fa"}}>console.anthropic.com</strong> erstellen.</div>
+          <input value={claudeKey} onChange={e=>setClaudeKey(e.target.value)} placeholder="sk-ant-api03-..." type="password"
+            style={{width:"100%",background:"rgba(255,255,255,0.08)",border:`1px solid ${claudeKey?"rgba(96,165,250,0.3)":"rgba(255,255,255,0.15)"}`,borderRadius:"10px",color:"white",padding:"0.7rem 1rem",fontSize:"0.85rem",fontFamily:"inherit",outline:"none",boxSizing:"border-box",marginBottom:"0.5rem"}}/>
+          <div style={{color:claudeKey?"rgba(96,165,250,0.7)":"rgba(255,255,255,0.25)",fontSize:"0.72rem"}}>{claudeKey?"✅ API Key gespeichert – Scan bereit!":"Ohne Key: manuell Rezepte eingeben"}</div>
+        </div>
         <div style={{fontSize:"0.62rem",letterSpacing:"2px",color:"rgba(255,107,53,0.9)",marginBottom:"0.8rem"}}>ALLERGIEN AUSSCHLIESSEN</div>
-        <div style={{display:"flex",flexWrap:"wrap",gap:"0.6rem",marginBottom:"1.5rem"}}>
-          {ALLERGENS_LIST.map(a=>(
+        <div style={{display:"flex",flexWrap:"wrap",gap:"0.6rem",marginBottom:"0.8rem"}}>
+          {[...new Set([...ALLERGENS_LIST,...selectedAllergens])].map(a=>(
             <button key={a} onClick={()=>{const n=selectedAllergens.includes(a)?selectedAllergens.filter(x=>x!==a):[...selectedAllergens,a];setSelectedAllergens(n);applyFilter(moodFilter,n);}}
               style={{background:selectedAllergens.includes(a)?"rgba(255,68,68,0.25)":"rgba(255,255,255,0.08)",border:`1px solid ${selectedAllergens.includes(a)?"#ff4444":"rgba(255,255,255,0.12)"}`,borderRadius:"50px",color:selectedAllergens.includes(a)?"#ff8888":"rgba(255,255,255,0.7)",padding:"0.55rem 1.1rem",cursor:"pointer",fontFamily:"inherit",fontSize:"0.9rem"}}>
               {selectedAllergens.includes(a)?"✗ ":""}{a}
             </button>
           ))}
+        </div>
+        <div style={{display:"flex",gap:"0.5rem",marginBottom:"1.5rem"}}>
+          <input id="customAllergen" placeholder="Eigene Allergie eingeben..." style={{flex:1,background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.15)",borderRadius:"10px",color:"white",padding:"0.6rem 0.8rem",fontSize:"0.85rem",fontFamily:"inherit",outline:"none",boxSizing:"border-box"}}/>
+          <button onClick={()=>{const inp=document.getElementById("customAllergen");const v=inp?.value?.trim();if(!v)return;if(!selectedAllergens.includes(v)){const n=[...selectedAllergens,v];setSelectedAllergens(n);applyFilter(moodFilter,n);showToast(`✅ "${v}" hinzugefügt`);}inp.value="";}} style={{background:"linear-gradient(135deg,#ff6b35,#ff9a3c)",border:"none",borderRadius:"10px",color:"white",padding:"0.6rem 1rem",fontSize:"0.85rem",fontWeight:"700",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>+ Hinzufügen</button>
         </div>
         <button onClick={()=>{setSeenIds([]);showToast("🔀 Alle Gerichte zurückgesetzt!");}} style={{width:"100%",background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:"14px",color:"rgba(255,255,255,0.5)",padding:"0.8rem",cursor:"pointer",fontFamily:"inherit",marginBottom:"0.8rem"}}>🔀 Gesehene zurücksetzen</button>
         <button onClick={()=>{localStorage.removeItem("fs_onboarded");setOnboarded(false);setObStep(0);}} style={{width:"100%",background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:"14px",color:"rgba(255,255,255,0.3)",padding:"0.8rem",cursor:"pointer",fontFamily:"inherit",marginBottom:"2rem"}}>Onboarding wiederholen</button>
