@@ -68,6 +68,8 @@ const TRANSLATIONS={
     lbl_protein:"PROTEIN",lbl_carbs:"CARBS",lbl_fat:"FETT",
     // Misc
     min:"Min",kcal:"kcal",recipes_loaded:"Rezepte geladen!",
+    // Allergen names
+    al_Gluten:"Gluten",al_Milch:"Milch",al_Ei:"Ei",al_Nüsse:"Nüsse",al_Fisch:"Fisch",al_Soja:"Soja",al_Schalentiere:"Schalentiere",al_Sesam:"Sesam",
   },
   pl:{
     slot_morning:"Pomysły na śniadanie",slot_lunch:"Pomysły na obiad",slot_snack:"Szybkie przekąski",slot_dinner:"Pomysły na kolację",
@@ -114,6 +116,7 @@ const TRANSLATIONS={
     nav_swipe:"Swipuj",nav_favorites:"Ulubione",nav_shopping:"Lista",nav_settings:"Więcej",
     lbl_protein:"BIAŁKO",lbl_carbs:"WĘGL.",lbl_fat:"TŁUSZCZ",
     min:"Min",kcal:"kcal",recipes_loaded:"przepisów załadowanych!",
+    al_Gluten:"Gluten",al_Milch:"Mleko",al_Ei:"Jajka",al_Nüsse:"Orzechy",al_Fisch:"Ryby",al_Soja:"Soja",al_Schalentiere:"Skorupiaki",al_Sesam:"Sezam",
   },
   ru:{
     slot_morning:"Идеи для завтрака",slot_lunch:"Идеи для обеда",slot_snack:"Быстрые перекусы",slot_dinner:"Идеи для ужина",
@@ -160,6 +163,7 @@ const TRANSLATIONS={
     nav_swipe:"Свайп",nav_favorites:"Избранное",nav_shopping:"Список",nav_settings:"Ещё",
     lbl_protein:"БЕЛОК",lbl_carbs:"УГЛЕВ.",lbl_fat:"ЖИРЫ",
     min:"Мин",kcal:"kcal",recipes_loaded:"рецептов загружено!",
+    al_Gluten:"Глютен",al_Milch:"Молоко",al_Ei:"Яйца",al_Nüsse:"Орехи",al_Fisch:"Рыба",al_Soja:"Соя",al_Schalentiere:"Моллюски",al_Sesam:"Кунжут",
   }
 };
 const LANG_OPTIONS=[{id:"de",label:"🇩🇪 Deutsch"},{id:"pl",label:"🇵🇱 Polski"},{id:"ru",label:"🇷🇺 Русский"}];
@@ -385,6 +389,7 @@ export default function FoodSwipe(){
   const [lang,setLang]=useState(()=>load("fs_lang","de"));
   const t=key=>TRANSLATIONS[lang]?.[key]||TRANSLATIONS.de[key]||key;
   const saveLang=l=>{setLang(l);save("fs_lang",l);};
+  const tA=a=>TRANSLATIONS[lang]?.[`al_${a}`]||a; // translate allergen name
   const slotInfo={morning:{emoji:"🌅"},lunch:{emoji:"☀️"},snack:{emoji:"🌆"},dinner:{emoji:"🌙"}}[slot];
   const slotSub=t(`slot_${slot}`);
   const MOODS_T=[{id:"Zur Uhrzeit",l:t("mood_time")},{id:"Alles",l:t("mood_all")},{id:"Schnell",l:t("mood_fast")},{id:"High Protein",l:t("mood_protein")},{id:"Vegetarisch",l:t("mood_veggie")},{id:"Trending",l:t("mood_trending")},{id:"Wenig Kalorien",l:t("mood_lowcal")}];
@@ -404,6 +409,7 @@ export default function FoodSwipe(){
   const [spoonLoading,setSpoonLoading]=useState(false);
   const [spoonLoaded,setSpoonLoaded]=useState(false);
   const [claudeKey,setClaudeKey]=useState(()=>load("fs_claude_key",""));
+  const [scanning,setScanning]=useState(false);
 
   useEffect(()=>{save("fs_liked",liked);},[liked]);
   useEffect(()=>{save("fs_history",history);},[history]);
@@ -578,11 +584,13 @@ export default function FoodSwipe(){
           <div style={{color:"rgba(255,255,255,0.5)",fontSize:"1rem",lineHeight:1.6,maxWidth:"280px"}}>{t("ob_tagline")}</div>
           <div style={{width:"100%",marginTop:"0.5rem"}}>
             <div style={{fontSize:"0.62rem",letterSpacing:"2px",color:"rgba(255,107,53,0.9)",marginBottom:"0.6rem"}}>{t("ob_lang_title")}</div>
-            <div style={{display:"flex",gap:"0.5rem",justifyContent:"center"}}>
+            <select value={lang} onChange={e=>saveLang(e.target.value)}
+              style={{width:"100%",background:"rgba(255,255,255,0.1)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:"14px",color:"white",padding:"0.9rem 1.2rem",fontSize:"1rem",fontFamily:"inherit",outline:"none",appearance:"none",WebkitAppearance:"none",backgroundImage:"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='rgba(255,255,255,0.5)' viewBox='0 0 16 16'%3E%3Cpath d='M1.5 5.5l6.5 6.5 6.5-6.5'/%3E%3C/svg%3E\")",backgroundRepeat:"no-repeat",backgroundPosition:"right 1rem center",cursor:"pointer",textAlign:"center"}}>
               {LANG_OPTIONS.map(lo=>(
-                <button key={lo.id} onClick={()=>saveLang(lo.id)} style={{flex:1,background:lang===lo.id?"linear-gradient(135deg,#ff6b35,#ff9a3c)":"rgba(255,255,255,0.08)",border:`1px solid ${lang===lo.id?"transparent":"rgba(255,255,255,0.15)"}`,borderRadius:"12px",color:"white",padding:"0.65rem 0.5rem",cursor:"pointer",fontFamily:"inherit",fontSize:"0.85rem",fontWeight:lang===lo.id?"700":"400"}}>{lo.label}</button>
+                <option key={lo.id} value={lo.id} style={{background:"#1a1a2e",color:"white"}}>{lo.label}</option>
               ))}
-            </div>
+            </select>
+            <div style={{color:"rgba(255,255,255,0.3)",fontSize:"0.72rem",marginTop:"0.4rem"}}>{t("ob_lang_sub")}</div>
           </div>
           <input value={userName} onChange={e=>setUserName(e.target.value)} placeholder={t("ob_name_placeholder")} style={{background:"rgba(255,255,255,0.1)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:"14px",color:"white",padding:"0.9rem 1.2rem",fontSize:"1rem",width:"100%",fontFamily:"inherit",textAlign:"center",outline:"none",marginTop:"0.5rem"}}/>
         </div>
@@ -748,7 +756,6 @@ export default function FoodSwipe(){
       reader.readAsDataURL(file);
     };
     // AI Recipe Scan: analyze photo with Claude Vision to extract full recipe
-    const [scanning,setScanning]=useState(false);
     const handleRecipeScan=async e=>{
       const file=e.target.files[0];
       if(!file)return;
@@ -1078,18 +1085,19 @@ Wichtige Regeln:
         {/* LANGUAGE PICKER */}
         <div style={{background:"rgba(255,255,255,0.07)",borderRadius:"16px",padding:"1rem",marginBottom:"1rem",border:"1px solid rgba(255,255,255,0.1)"}}>
           <div style={{fontSize:"0.62rem",letterSpacing:"2px",color:"rgba(255,107,53,0.9)",marginBottom:"0.6rem"}}>{t("set_lang_title")}</div>
-          <div style={{display:"flex",gap:"0.5rem"}}>
+          <select value={lang} onChange={e=>saveLang(e.target.value)}
+            style={{width:"100%",background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.15)",borderRadius:"12px",color:"white",padding:"0.8rem 1rem",fontSize:"1rem",fontFamily:"inherit",outline:"none",appearance:"none",WebkitAppearance:"none",backgroundImage:"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='rgba(255,255,255,0.5)' viewBox='0 0 16 16'%3E%3Cpath d='M1.5 5.5l6.5 6.5 6.5-6.5'/%3E%3C/svg%3E\")",backgroundRepeat:"no-repeat",backgroundPosition:"right 1rem center",cursor:"pointer"}}>
             {LANG_OPTIONS.map(lo=>(
-              <button key={lo.id} onClick={()=>saveLang(lo.id)} style={{flex:1,background:lang===lo.id?"linear-gradient(135deg,#ff6b35,#ff9a3c)":"rgba(255,255,255,0.08)",border:`1px solid ${lang===lo.id?"transparent":"rgba(255,255,255,0.15)"}`,borderRadius:"10px",color:"white",padding:"0.65rem 0.5rem",cursor:"pointer",fontFamily:"inherit",fontSize:"0.85rem",fontWeight:lang===lo.id?"700":"400"}}>{lo.label}</button>
+              <option key={lo.id} value={lo.id} style={{background:"#1a1a2e",color:"white"}}>{lo.label}</option>
             ))}
-          </div>
+          </select>
         </div>
         <div style={{fontSize:"0.62rem",letterSpacing:"2px",color:"rgba(255,107,53,0.9)",marginBottom:"0.8rem"}}>{t("set_allergens")}</div>
         <div style={{display:"flex",flexWrap:"wrap",gap:"0.6rem",marginBottom:"0.8rem"}}>
           {[...new Set([...ALLERGENS_LIST,...selectedAllergens])].map(a=>(
             <button key={a} onClick={()=>{const n=selectedAllergens.includes(a)?selectedAllergens.filter(x=>x!==a):[...selectedAllergens,a];setSelectedAllergens(n);applyFilter(moodFilter,n);}}
               style={{background:selectedAllergens.includes(a)?"rgba(255,68,68,0.25)":"rgba(255,255,255,0.08)",border:`1px solid ${selectedAllergens.includes(a)?"#ff4444":"rgba(255,255,255,0.12)"}`,borderRadius:"50px",color:selectedAllergens.includes(a)?"#ff8888":"rgba(255,255,255,0.7)",padding:"0.55rem 1.1rem",cursor:"pointer",fontFamily:"inherit",fontSize:"0.9rem"}}>
-              {selectedAllergens.includes(a)?"✗ ":""}{a}
+              {selectedAllergens.includes(a)?"✗ ":""}{tA(a)}
             </button>
           ))}
         </div>
