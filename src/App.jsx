@@ -588,7 +588,7 @@ Regeln:
       if(mood==="Schnell")return parseInt(r.time)<=20;
       if(mood==="High Protein")return r.protein>=35;
       if(mood==="Vegetarisch")return r.tags.some(t=>t.toLowerCase().includes("vegetar"));
-      if(mood==="Trending")return r.src==="YouTube"||r.src==="TheMealDB";
+      if(mood==="Trending")return r.src==="YouTube"||r.src==="TheMealDB"||r.src==="TikTok Viral"||r.src==="Instagram"||r.tags.some(t=>t==="Trending"||t==="Viral"||t==="TikTok");
       if(mood==="Wenig Kalorien")return r.cal<420;
       if(mood==="Saisonal"){const m=new Date().getMonth();const season=[11,0,1].includes(m)?"winter":[2,3,4].includes(m)?"spring":[5,6,7].includes(m)?"summer":"autumn";const tags={winter:["Winter","Eintopf","Suppe","Braten"],spring:["Frühling","Spargel","Salat","Leicht","Shakshuka","Frühling"],summer:["Sommer","Grill","Bowl","Salat","Erfrischend"],autumn:["Herbst","Kürbis","Eintopf","Pilze"]}[season];return r.tags.some(t=>tags.some(st=>t.toLowerCase().includes(st.toLowerCase())));}
       return true;
@@ -609,7 +609,7 @@ Regeln:
     const unseenRest=shuffle(rest.filter(r=>!seen.includes(String(r.id))));
     const seenL=shuffle(list.filter(r=>seen.includes(String(r.id))));
     return [...unseen,...unseenRest,...seenL];
-  },[allRecipes,slotType]);
+  },[allRecipes,slotType,tagScores]);
 
   const [moodFilter,setMoodFilter]=useState("Zur Uhrzeit");
   const [deck,setDeck]=useState(()=>buildDeck("Zur Uhrzeit",load("fs_allergens",[]),load("fs_seen",[])));
