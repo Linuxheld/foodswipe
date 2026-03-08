@@ -1033,7 +1033,7 @@ export default function FoodSwipe(){
 
   // ── MAIN SWIPE ───────────────────────────────────────────────────────────
   return(
-    <div style={{height:"100dvh",display:"flex",flexDirection:"column",fontFamily:"'DM Sans',sans-serif",color:"white",overflow:"hidden",position:"relative"}}>
+    <div style={{height:"100dvh",display:"flex",flexDirection:"column",fontFamily:"'DM Sans',sans-serif",color:"white",overflow:"hidden",position:"relative",paddingTop:"env(safe-area-inset-top)",boxSizing:"border-box"}}>
       <div style={{position:"absolute",inset:0,zIndex:0}}>
         {current&&<>
           <img key={current.id} src={current.img} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>{e.target.src=FALLBACK;}}/>
@@ -1043,7 +1043,7 @@ export default function FoodSwipe(){
       </div>
       <ToastEl/>
       <div style={{position:"relative",zIndex:1,display:"flex",flexDirection:"column",height:"100%"}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"1rem 1.2rem 0.2rem"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"0.5rem 1.2rem 0.2rem"}}>
           <button onClick={()=>setScreen("favorites")} style={{background:"rgba(255,255,255,0.08)",backdropFilter:"blur(20px)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:"50px",color:"white",padding:"0.4rem 1rem",cursor:"pointer",fontFamily:"inherit",fontSize:"0.85rem",display:"flex",alignItems:"center",gap:"0.4rem",boxShadow:"0 4px 16px rgba(0,0,0,0.2)"}}>❤️ <span style={{color:"rgba(255,255,255,0.5)"}}>{liked.length}</span></button>
           <div style={{textAlign:"center"}}>
             <div style={{fontSize:"1.3rem",fontWeight:"900",background:"linear-gradient(90deg,#ff6b35,#ffcc02)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>{userName?`Hey ${userName.split(" ")[0]}! 👋`:"FoodSwipe"}</div>
@@ -1057,7 +1057,7 @@ export default function FoodSwipe(){
             <button onClick={()=>setScreen("settings")} style={{background:"rgba(255,255,255,0.12)",backdropFilter:"blur(10px)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:"50px",color:"white",padding:"0.4rem 0.85rem",cursor:"pointer",fontSize:"0.95rem"}}>⚙️</button>
           </div>
         </div>
-        <div style={{padding:"0.3rem 1rem 0.35rem",display:"flex",gap:"0.4rem",overflowX:"auto",scrollbarWidth:"none",flexShrink:0}}>
+        <div style={{padding:"0.2rem 1rem 0.2rem",display:"flex",gap:"0.4rem",overflowX:"auto",scrollbarWidth:"none",flexShrink:0}}>
           {MOODS.map(m=>(
             <button key={m} onClick={()=>{setMoodFilter(m);applyFilter(m,selectedAllergens);}}
               style={{background:moodFilter===m?"linear-gradient(135deg,#ff6b35,#ff9a3c)":"rgba(255,255,255,0.07)",backdropFilter:"blur(20px)",border:`1px solid ${moodFilter===m?"rgba(255,150,80,0.5)":"rgba(255,255,255,0.08)"}`,borderRadius:"50px",boxShadow:moodFilter===m?"0 4px 20px rgba(255,107,53,0.35)":"none",color:"white",padding:"0.3rem 0.9rem",cursor:"pointer",whiteSpace:"nowrap",fontFamily:"inherit",fontSize:"0.73rem",fontWeight:moodFilter===m?"700":"400",flexShrink:0}}>
@@ -1066,11 +1066,8 @@ export default function FoodSwipe(){
           ))}
           <button onClick={()=>setShowAddDish(true)} style={{background:"rgba(142,68,173,0.3)",backdropFilter:"blur(10px)",border:"1px solid rgba(142,68,173,0.4)",borderRadius:"50px",color:"#c39bd3",padding:"0.3rem 0.9rem",cursor:"pointer",whiteSpace:"nowrap",fontFamily:"inherit",fontSize:"0.73rem",fontWeight:"700",flexShrink:0}}>➕ Eigenes</button>
         </div>
-        <div style={{padding:"0 1.2rem 0.1rem",display:"flex",alignItems:"center",gap:"0.5rem"}}>
-          <span style={{fontSize:"0.68rem",color:"rgba(255,255,255,0.22)"}}>{allRecipes.length} Gerichte</span>
-          {spoonLoaded&&<span style={{fontSize:"0.65rem",background:"rgba(230,126,34,0.2)",color:"#e67e22",borderRadius:"20px",padding:"0.1rem 0.5rem"}}>+API</span>}
-        </div>
-        <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",padding:"0.2rem 1.2rem",position:"relative",minHeight:0}}>
+
+        <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",padding:"0.1rem 1.2rem",position:"relative",minHeight:0}}>
           {next&&current?.id!==next?.id&&(
             <div style={{position:"absolute",width:"100%",maxWidth:"420px",borderRadius:"28px",overflow:"hidden",transform:"scale(0.93) translateY(14px)",zIndex:1}}>
               <img src={next.img} alt="" style={{width:"100%",height:"360px",objectFit:"cover",filter:"brightness(0.25) blur(2px)"}} onError={e=>{e.target.src=FALLBACK;}}/>
@@ -1080,7 +1077,7 @@ export default function FoodSwipe(){
             <div style={{position:"relative",width:"100%",maxWidth:"420px",zIndex:2,borderRadius:"28px",overflow:"hidden",boxShadow:"0 32px 80px rgba(0,0,0,0.8),0 0 0 1px rgba(255,255,255,0.06),0 0 60px rgba(255,107,53,0.08)",cursor:isDragging?"grabbing":"grab",...cardAnim}}
               onMouseDown={onDS} onMouseMove={onDM} onMouseUp={onDE} onMouseLeave={onDE}
               onTouchStart={onDS} onTouchMove={onDM} onTouchEnd={onDE}>
-              <div style={{position:"relative",height:"285px",overflow:"hidden"}}>
+              <div style={{position:"relative",height:"min(42vw,260px)",overflow:"hidden"}}>
                 <img src={current.img} alt={current.name} draggable={false}
                   style={{width:"100%",height:"100%",objectFit:"cover",display:"block",pointerEvents:"none",transform:isDragging?`scale(1.04) translateX(${dragX*0.015}px)`:"scale(1)",transition:isDragging?"none":"transform 0.3s"}}
                   onError={e=>{e.target.src=FALLBACK;}}/>
@@ -1096,7 +1093,7 @@ export default function FoodSwipe(){
                   </div>
                 </div>
               </div>
-              <div style={{background:"rgba(6,6,20,0.92)",backdropFilter:"blur(30px) saturate(1.5)",padding:"0.75rem 1.1rem 0.9rem",borderTop:"1px solid rgba(255,255,255,0.06)"}}>
+              <div style={{background:"rgba(6,6,20,0.92)",backdropFilter:"blur(30px) saturate(1.5)",padding:"0.55rem 1.1rem 0.65rem",borderTop:"1px solid rgba(255,255,255,0.06)"}}>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"0.5rem",marginBottom:"0.65rem"}}>
                   {[{l:"Protein",v:current.protein,c:"#4ade80"},{l:"Carbs",v:current.carbs,c:"#60a5fa"},{l:"Fett",v:current.fat,c:"#fb923c"}].map(m=>(
                     <div key={m.l} style={{background:"rgba(255,255,255,0.06)",borderRadius:"10px",padding:"0.38rem",textAlign:"center"}}>
@@ -1121,7 +1118,7 @@ export default function FoodSwipe(){
             </div>
           )}
         </div>
-        <div style={{display:"flex",justifyContent:"center",gap:"1.5rem",padding:"0.5rem 1.5rem 1.2rem",alignItems:"center",flexShrink:0}}>
+        <div style={{display:"flex",justifyContent:"center",gap:"1.5rem",padding:"0.4rem 1.5rem calc(0.8rem + env(safe-area-inset-bottom))",alignItems:"center",flexShrink:0}}>
           <button onClick={()=>doSwipe("left")} style={{width:60,height:60,borderRadius:"50%",background:"rgba(255,255,255,0.08)",backdropFilter:"blur(10px)",border:"2px solid rgba(255,68,68,0.7)",color:"#ff6666",fontSize:"1.4rem",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",transition:"all 0.15s",boxShadow:"0 4px 20px rgba(255,68,68,0.2)"}}
             onMouseEnter={e=>{e.currentTarget.style.transform="scale(1.12)";e.currentTarget.style.background="rgba(255,68,68,0.2)";}}
             onMouseLeave={e=>{e.currentTarget.style.transform="scale(1)";e.currentTarget.style.background="rgba(255,255,255,0.08)";}}>✕</button>
