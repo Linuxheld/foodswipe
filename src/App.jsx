@@ -71,6 +71,7 @@ const TRANSLATIONS={
     // Translation
     trans_loading:"Wird übersetzt...",trans_done:"Übersetzt",trans_tap:"Tippen zum Übersetzen",trans_need_key:"API Key in Einstellungen für Übersetzung",trans_btn:"Übersetzen",
     share_btn:"📤 Teilen",share_text:"Schau dir dieses Rezept an",share_via:"Rezept teilen",
+    mood_seasonal:"🌿 Saisonal",portions_label:"Portionen",set_taste_profile:"DEIN GESCHMACKSPROFIL",set_cal_title:"KALORIENTRACKER",set_cal_goal:"Tagesziel",set_cal_reset:"Zurücksetzen",set_paar_title:"PAAR-MODUS",set_paar_sub:"Beide swipen abwechselnd. Bei gegenseitigem ❤️ gibt's ein MATCH!",set_paar_on:"💞 Paar-Modus aktiv",set_paar_off:"💞 Aktivieren",set_paar_person:"Aktiv als Person",set_paar_reset:"Likes zurücksetzen",
     // Allergen names
     al_Gluten:"Gluten",al_Milch:"Milch",al_Ei:"Ei",al_Nüsse:"Nüsse",al_Fisch:"Fisch",al_Soja:"Soja",al_Schalentiere:"Schalentiere",al_Sesam:"Sesam",
   },
@@ -85,6 +86,7 @@ const TRANSLATIONS={
     ob_shopping:"Lista zakupów",ob_shopping_sub:"Składniki zbierane automatycznie",
     ob_back:"← Wstecz",ob_start:"Zaczynamy 🚀",
     ob_lang_title:"Wybierz język 🌍",ob_lang_sub:"Możesz go zmienić w ustawieniach w każdej chwili.",
+    mood_seasonal:"🌿 Sezonowe",portions_label:"Porcje",set_taste_profile:"TWÓJ PROFIL SMAKOWY",set_cal_title:"TRACKER KALORII",set_cal_goal:"Cel dzienny",set_cal_reset:"Resetuj",set_paar_title:"TRYB PARY",set_paar_sub:"Oboje swipujecie na zmianę. Wzajemne ❤️ = MATCH!",set_paar_on:"💞 Tryb pary aktywny",set_paar_off:"💞 Aktywuj",set_paar_person:"Aktywny jako Osoba",set_paar_reset:"Resetuj polubienia",
     swipe_nope:"NIE",swipe_like:"PYSZNE!",swipe_recipe:"👨‍🍳 Przepis",swipe_dishes:"Dania",swipe_own:"➕ Własne",
     swipe_no_recipes:"Brak przepisów",swipe_change_filter:"Wybierz inny filtr!",
     detail_ingredients:"🛒 Składniki",detail_steps:"👨‍🍳 Przygotowanie",
@@ -150,6 +152,7 @@ const TRANSLATIONS={
     set_ai_title:"🤖 AI-СКАНЕР РЕЦЕПТОВ (опционально)",set_ai_sub:"Сфотографируй карточку рецепта (HelloFresh и т.д.) – Claude автоматически распознает ингредиенты и шаги.",set_ai_sub2:"Создай ключ на",set_ai_sub3:".",
     set_ai_saved:"✅ API ключ сохранён – сканер готов!",set_ai_without:"Без ключа: добавлять рецепты вручную",
     set_allergens:"ИСКЛЮЧИТЬ АЛЛЕРГЕНЫ",set_allergen_input:"Введите свой аллерген...",set_allergen_add:"+ Добавить",
+    mood_seasonal:"🌿 Сезонное",portions_label:"Порции",set_taste_profile:"ВАШИ ПРЕДПОЧТЕНИЯ",set_cal_title:"ТРЕКЕР КАЛОРИЙ",set_cal_goal:"Дневная цель",set_cal_reset:"Сбросить",set_paar_title:"РЕЖИМ ПАРЫ",set_paar_sub:"Оба свайпают по очереди. Взаимное ❤️ = МАТЧ!",set_paar_on:"💞 Режим пары активен",set_paar_off:"💞 Активировать",set_paar_person:"Активен как Персона",set_paar_reset:"Сбросить лайки",
     set_reset_seen:"🔄 Сбросить просмотренные",set_redo_onboarding:"Повторить введение",
     set_lang_title:"🌍 ЯЗЫК / LANGUAGE",
     add_title:"Своё блюдо 🍳",add_photo:"📷 Сделать фото",add_gallery:"🖼️ Из галереи",
@@ -383,6 +386,66 @@ const LOCAL_RECIPES=[
   R(49,"Quiche Lorraine","45 Min",540,22,38,32,["lunch","dinner"],["Französisch","Klassiker"],"HelloFresh","#7cb518",IMG.quiche,["Gluten","Ei","Milch"],
     ["Mürbeteig in Quicheform drücken, mit Gabel einstechen, 10 Min vorbacken.","Speck in Würfeln knusprig braten, auf Teig verteilen.","Eier + Sahne + geriebenen Käse verquirlen, würzen.","Ei-Mix über den Speck gießen.","Bei 180°C 30 Min backen bis gestockt und goldbraun.","10 Min abkühlen, dann anschneiden & servieren."],
     [{name:"Mürbeteig",amount:"1 Rolle"},{name:"Speck gewürfelt",amount:"150g"},{name:"Eier",amount:"3 Stück"},{name:"Sahne",amount:"200ml"},{name:"Gruyère",amount:"80g"}]),
+
+  R(51,"Baked Feta Pasta","25 Min",580,22,68,24,["lunch","dinner"],["TikTok","Pasta","Vegetarisch"],"TikTok Viral","#ff0050","https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=800&q=80",["Milch","Gluten"],
+    ["Ofen auf 200°C vorheizen.","Feta in die Mitte einer Auflaufform, Kirschtomaten drumherum verteilen.","Olivenöl, Knoblauch, Chiliflocken und Honig darüber.","25 Min backen bis Tomaten aufplatzen und Feta golden ist.","Alles mit einer Gabel zerdrücken und gut vermischen.","Gekochte Pasta unterheben, mit frischem Basilikum servieren."],
+    [{name:"Feta",amount:"200g"},{name:"Kirschtomaten",amount:"400g"},{name:"Pasta (Penne)",amount:"250g"},{name:"Knoblauch",amount:"3 Zehen"},{name:"Basilikum",amount:"1 Bund"}]),
+
+  R(52,"Smash Burger","15 Min",650,42,38,36,["lunch","dinner"],["Burger","Trending","Protein"],"TikTok Viral","#ff0050","https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80",["Gluten","Milch"],
+    ["Hackfleisch in 4 Kugeln formen – NICHT würzen!","Gusseisenpfanne auf maximale Hitze bringen.","Kugel in die Pfanne, mit Spatel FLACH drücken (smash!).","Salz + Pfeffer JETZT drauf. 2 Min braten bis Kruste entsteht.","Umdrehen, Käse drauf, 1 Min fertig braten.","Auf getoastetem Brioche-Bun mit Pickles, Senf, Ketchup servieren."],
+    [{name:"Rinderhack",amount:"400g"},{name:"Cheddar",amount:"4 Scheiben"},{name:"Brioche Buns",amount:"4 Stück"},{name:"Gewürzgurken",amount:"4 Stück"},{name:"Zwiebel",amount:"1 Stück"}]),
+
+  R(53,"Dubai Schokoladen-Crêpes","20 Min",480,8,62,22,["breakfast","snack"],["Dessert","Viral","Schokolade"],"Instagram","#e4405f","https://images.unsplash.com/photo-1519676867240-f03562e64548?w=800&q=80",["Gluten","Milch","Ei","Nüsse"],
+    ["Crêpe-Teig: Mehl, Ei, Milch, Prise Salz glatt rühren.","Dünne Crêpes in beschichteter Pfanne ausbacken.","Pistaziencreme dünn auf warmem Crêpe verstreichen.","Gehackte Pistazien und Kadayif-Fäden darüber streuen.","Mit geschmolzener Schokolade beträufeln.","Einrollen, diagonal halbieren und sofort servieren."],
+    [{name:"Mehl",amount:"100g"},{name:"Ei",amount:"1 Stück"},{name:"Milch",amount:"200ml"},{name:"Pistaziencreme",amount:"100g"},{name:"Zartbitterschokolade",amount:"50g"}]),
+
+  R(54,"Birria Tacos","45 Min",620,38,42,32,["dinner"],["Mexikanisch","Trending","Fleisch"],"YouTube","#cc0000","https://images.unsplash.com/photo-1613514785940-daed07799d9b?w=800&q=80",["Gluten"],
+    ["Rindfleisch in Würfel schneiden, mit Chipotle-Paste, Kreuzkümmel und Oregano marinieren.","In einem Topf mit Tomaten, Zwiebeln und Brühe 30 Min köcheln lassen.","Fleisch mit Gabel zerrupfen, Brühe als Consommé beiseite stellen.","Maistortillas in der Birria-Brühe kurz eintauchen.","Tortillas in Pfanne mit Käse und Fleisch knusprig braten.","Mit Consommé zum Dippen, Limette und Koriander servieren."],
+    [{name:"Rindfleisch",amount:"500g"},{name:"Chipotle-Paste",amount:"2 EL"},{name:"Maistortillas",amount:"8 Stück"},{name:"Mozzarella",amount:"150g"},{name:"Koriander",amount:"1 Bund"}]),
+
+  R(55,"Butter Chicken","35 Min",560,42,28,30,["dinner"],["Indisch","Curry","Protein"],"KI-Vorschlag","#ff6b35","https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=800&q=80",[],
+    ["Hähnchen in Joghurt + Garam Masala 20 Min marinieren.","In heißer Pfanne scharf anbraten, beiseite stellen.","Butter schmelzen, Zwiebeln, Knoblauch, Ingwer anbraten.","Tomatenpassata + Sahne + Gewürze dazu, 10 Min köcheln.","Hähnchen zurück in die Sauce geben.","Mit Basmatireis und Naan servieren."],
+    [{name:"Hähnchenbrust",amount:"500g"},{name:"Sahne",amount:"200ml"},{name:"Tomatenpassata",amount:"400g"},{name:"Garam Masala",amount:"2 EL"},{name:"Basmatireis",amount:"200g"}]),
+
+  R(56,"Korean Corn Dogs","30 Min",420,16,52,18,["snack"],["Koreanisch","Street Food","Trending"],"TikTok Viral","#ff0050","https://images.unsplash.com/photo-1619881590738-a111d176d936?w=800&q=80",["Gluten","Milch","Ei"],
+    ["Würstchen auf Holzspieße stecken, Mozzarella-Sticks dazwischen optional.","Teig: Mehl, Hefe, Zucker, Ei – dickflüssig anrühren.","Würstchen durch den Teig ziehen, gleichmäßig ummanteln.","In Panko-Bröseln wälzen für extra Crunch.","In heißem Öl (180°C) goldbraun frittieren, ca. 4 Min.","Sofort mit Ketchup + Senf-Swirl und Zucker bestreut servieren."],
+    [{name:"Würstchen",amount:"6 Stück"},{name:"Mozzarella-Sticks",amount:"3 Stück"},{name:"Mehl",amount:"150g"},{name:"Panko",amount:"100g"},{name:"Ei",amount:"1 Stück"}]),
+
+  R(57,"Salmon Rice Bowl","15 Min",520,38,48,18,["lunch","dinner"],["TikTok","Bowl","Fisch"],"TikTok Viral","#ff0050","https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80",["Fisch","Soja","Sesam"],
+    ["Sushireis kochen und mit Reisessig würzen.","Lachs in kleine Würfel schneiden (Sashimi-Qualität).","Sriracha-Mayo mischen: Mayo + Sriracha + Sesamöl.","Reis in Bowl, Lachs-Würfel drauf verteilen.","Avocado-Scheiben, Edamame und Nori-Streifen dazu.","Sriracha-Mayo drüber, Sesam und Frühlingszwiebeln obendrauf."],
+    [{name:"Lachs (frisch)",amount:"200g"},{name:"Sushireis",amount:"150g"},{name:"Avocado",amount:"1 Stück"},{name:"Sriracha",amount:"1 EL"},{name:"Sesam",amount:"1 EL"}]),
+
+  R(58,"Crispy Chilli Beef","25 Min",540,35,48,22,["dinner"],["Chinesisch","Scharf","Knusprig"],"YouTube","#cc0000","https://images.unsplash.com/photo-1525755662778-989d0524087e?w=800&q=80",["Gluten","Soja"],
+    ["Rindfleisch in dünne Streifen schneiden.","In Speisestärke wälzen, überschüssiges abklopfen.","In heißem Öl portionsweise knusprig frittieren (3 Min).","Süß-scharfe Sauce: Sojasauce + Honig + Chili + Essig aufkochen.","Knuspriges Fleisch in die Sauce geben, kurz schwenken.","Mit Jasminreis, Frühlingszwiebeln und Sesam servieren."],
+    [{name:"Rinderfilet",amount:"400g"},{name:"Speisestärke",amount:"4 EL"},{name:"Sojasauce",amount:"3 EL"},{name:"Honig",amount:"2 EL"},{name:"Chilischoten",amount:"3 Stück"}]),
+
+  R(59,"Shakshuka","20 Min",380,22,28,20,["breakfast","lunch"],["Orientalisch","Vegetarisch","Frühling"],"Eigene DB","#9b59b6","https://images.unsplash.com/photo-1590412200988-a436970781fa?w=800&q=80",["Ei"],
+    ["Zwiebel und Paprika in Olivenöl anbraten.","Knoblauch, Kreuzkümmel und Paprikapulver dazu.","Stückige Tomaten eingießen, 10 Min köcheln lassen.","Mulden formen, Eier vorsichtig reingleiten lassen.","Deckel drauf, 5-7 Min bis Eiweiß fest, Eigelb noch weich.","Mit Feta zerbröselt, Petersilie und warmem Fladenbrot servieren."],
+    [{name:"Eier",amount:"4 Stück"},{name:"Stückige Tomaten",amount:"400g"},{name:"Paprika",amount:"2 Stück"},{name:"Kreuzkümmel",amount:"1 TL"},{name:"Feta",amount:"50g"}]),
+
+  R(60,"Dalgona Coffee","5 Min",180,4,28,6,["breakfast","snack"],["Getränk","Viral","Kaffee"],"TikTok Viral","#ff0050","https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=800&q=80",["Milch"],
+    ["Instantkaffee, Zucker und heißes Wasser (je 2 EL) in eine Schüssel.","Mit Handrührer 3-5 Min aufschlagen bis steife, cremige Masse entsteht.","Je fester der Schaum, desto besser!","Glas mit Eiswürfeln füllen.","Kalte Milch eingießen (ca. 200ml).","Kaffee-Schaum obendrauf löffeln – nicht umrühren!"],
+    [{name:"Instantkaffee",amount:"2 EL"},{name:"Zucker",amount:"2 EL"},{name:"Heißes Wasser",amount:"2 EL"},{name:"Milch (kalt)",amount:"200ml"},{name:"Eiswürfel",amount:"6 Stück"}]),
+
+  R(61,"Turkish Pasta","30 Min",620,38,62,22,["dinner"],["Türkisch","Pasta","Trending"],"TikTok Viral","#ff0050","https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?w=800&q=80",["Gluten","Milch"],
+    ["Pasta al dente kochen, abgießen.","Hackfleisch mit Zwiebeln, Knoblauch und Tomatenmark scharf anbraten.","Mit Paprikapulver, Kreuzkümmel und Chiliflocken würzen.","Joghurt-Sauce: Griech. Joghurt + gepresster Knoblauch + Salz verrühren.","Pasta auf Teller, Joghurt drüber, dann das Hackfleisch.","Paprika-Butter: Butter mit Paprikapulver erhitzen, darüber träufeln."],
+    [{name:"Hackfleisch",amount:"300g"},{name:"Pasta (Ditalini)",amount:"250g"},{name:"Griech. Joghurt",amount:"200g"},{name:"Butter",amount:"30g"},{name:"Paprikapulver",amount:"2 TL"}]),
+
+  R(62,"Protein Muffins","25 Min",220,20,18,8,["breakfast","snack"],["Protein","Meal Prep","Fitness"],"Instagram","#e4405f","https://images.unsplash.com/photo-1607958996333-41aef7caefaa?w=800&q=80",["Gluten","Milch","Ei"],
+    ["Ofen auf 180°C vorheizen, Muffinform einfetten.","Banane zerdrücken, Ei und Joghurt unterrühren.","Proteinpulver, Hafermehl und Backpulver trocken mischen.","Trockene + nasse Zutaten zusammenrühren, nicht über-mischen!","Teig in 8 Förmchen verteilen, optional Blaubeeren obendrauf.","18-22 Min backen bis goldbraun. Perfekt für Meal Prep – 3 Tage haltbar!"],
+    [{name:"Proteinpulver",amount:"60g"},{name:"Banane",amount:"2 Stück"},{name:"Griech. Joghurt",amount:"100g"},{name:"Hafermehl",amount:"80g"},{name:"Eier",amount:"2 Stück"}]),
+
+  R(63,"Cloud Toast","10 Min",310,16,32,14,["breakfast"],["Frühstück","Viral","Frühling"],"TikTok Viral","#ff0050","https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=800&q=80",["Gluten","Ei","Milch"],
+    ["Eiweiß vom Eigelb trennen (2 Eier).","Eiweiß steif schlagen mit einer Prise Salz.","Toast leicht vorrösten, damit er stabil wird.","Eischnee-Wolke auf den Toast türmen, Mulde in die Mitte.","Eigelb vorsichtig in die Mulde setzen.","Im Ofen bei 200°C 5-7 Min backen bis golden. Mit Avocado servieren."],
+    [{name:"Eier",amount:"2 Stück"},{name:"Toastbrot",amount:"2 Scheiben"},{name:"Avocado",amount:"0.5 Stück"},{name:"Honig",amount:"1 TL"},{name:"Microgreens",amount:"1 Handvoll"}]),
+
+  R(64,"Dumpling Lasagne","40 Min",520,28,52,20,["dinner"],["Fusion","Viral","Nudeln"],"TikTok Viral","#ff0050","https://images.unsplash.com/photo-1574894709920-11b28e7367e3?w=800&q=80",["Gluten","Soja"],
+    ["Füllung: Hackfleisch + Ingwer + Knoblauch + Sojasauce + Sesamöl mischen.","Dumpling-Wrappers als Lasagne-Platten in Auflaufform schichten.","Abwechselnd Füllung und Wrapper schichten (3-4 Lagen).","Sauce: Sojasauce + Reisessig + Chiliöl + Zucker verrühren.","Sauce gleichmäßig drüber gießen, mit Käse bestreuen.","Bei 180°C 25 Min backen. Mit Frühlingszwiebeln und Sesam garnieren."],
+    [{name:"Hackfleisch",amount:"400g"},{name:"Dumpling-Wrapper",amount:"30 Stück"},{name:"Sojasauce",amount:"4 EL"},{name:"Ingwer (frisch)",amount:"1 Stück"},{name:"Mozzarella",amount:"150g"}]),
+
+  R(65,"Japanese Cheesecake (2 Zutaten)","15 Min",280,8,38,12,["snack"],["Dessert","Viral 2026","Japanisch"],"TikTok Viral","#ff0050","https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=800&q=80",["Milch"],
+    ["Griechischen Joghurt (500g) in eine Schüssel geben.","Kekse (Lotus Biscoff oder Oreo) fein zerbröseln.","Joghurt und Kekskrümel gründlich vermischen.","In eine mit Backpapier ausgelegte Form füllen.","Mindestens 4 Stunden oder über Nacht im Kühlschrank fest werden lassen.","Stürzen, in Stücke schneiden. Optional: Kakaopulver oder Beeren oben drauf."],
+    [{name:"Griech. Joghurt",amount:"500g"},{name:"Lotus Biscoff Kekse",amount:"150g"},{name:"Kakaopulver",amount:"1 EL"},{name:"Beeren",amount:"100g"},{name:"Minze",amount:"Deko"}]),
   R(50,"Overnight Bircher Müsli","5 Min",360,16,54,10,["breakfast"],["Frühstück","Gesund"],"Eigene DB","#9b59b6",IMG.overnight_oats,["Gluten","Milch","Nüsse"],
     ["Haferflocken mit Milch & Joghurt verrühren.","Geriebenen Apfel untermischen (verhindert Bräunen).","Honig + Zimt + Vanille einrühren.","Gehackte Nüsse dazu.","Über Nacht kühlen.","Morgens mit Beeren & einem Spritzer Zitrone servieren."],
     [{name:"Haferflocken",amount:"80g"},{name:"Milch",amount:"150ml"},{name:"Joghurt",amount:"80g"},{name:"Apfel gerieben",amount:"1 Stück"},{name:"Nüsse gehackt",amount:"30g"}]),
@@ -399,7 +462,7 @@ export default function FoodSwipe(){
   const tA=a=>TRANSLATIONS[lang]?.[`al_${a}`]||a; // translate allergen name
   const slotInfo={morning:{emoji:"🌅"},lunch:{emoji:"☀️"},snack:{emoji:"🌆"},dinner:{emoji:"🌙"}}[slot];
   const slotSub=t(`slot_${slot}`);
-  const MOODS_T=[{id:"Zur Uhrzeit",l:t("mood_time")},{id:"Alles",l:t("mood_all")},{id:"Schnell",l:t("mood_fast")},{id:"High Protein",l:t("mood_protein")},{id:"Vegetarisch",l:t("mood_veggie")},{id:"Trending",l:t("mood_trending")},{id:"Wenig Kalorien",l:t("mood_lowcal")}];
+  const MOODS_T=[{id:"Zur Uhrzeit",l:t("mood_time")},{id:"Alles",l:t("mood_all")},{id:"Schnell",l:t("mood_fast")},{id:"High Protein",l:t("mood_protein")},{id:"Vegetarisch",l:t("mood_veggie")},{id:"Trending",l:t("mood_trending")},{id:"Wenig Kalorien",l:t("mood_lowcal")},{id:"Saisonal",l:t("mood_seasonal")}];
   const MEAL_OPTIONS_T=[{id:"breakfast",label:t("meal_breakfast")},{id:"lunch",label:t("meal_lunch")},{id:"dinner",label:t("meal_dinner")},{id:"snack",label:t("meal_snack")}];
 
   const [onboarded,setOnboarded]=useState(()=>!!load("fs_onboarded",false));
@@ -419,8 +482,25 @@ export default function FoodSwipe(){
   const [scanning,setScanning]=useState(false);
   const [translating,setTranslating]=useState(false);
   const [transCache,setTransCache]=useState(()=>load("fs_trans",{}));
+  // Aufgabe 4: Lernender Algorithmus
+  const [tagScores,setTagScores]=useState(()=>load("fs_tag_scores",{}));
+  // Aufgabe 5: Kalorientracking
+  const [calGoal,setCalGoal]=useState(()=>load("fs_cal_goal",2000));
+  const [dailyCals,setDailyCals]=useState(()=>{const saved=load("fs_daily_cals",{date:"",total:0});const today=new Date().toDateString();return saved.date===today?saved:{date:today,total:0};});
+  // Aufgabe 6: Paar-Modus
+  const [paarMode,setPaarMode]=useState(()=>load("fs_paar_mode",false));
+  const [currentPerson,setCurrentPerson]=useState(()=>load("fs_paar_person","A"));
+  const [paarLikesA,setPaarLikesA]=useState(()=>load("fs_paar_a",[]));
+  const [paarLikesB,setPaarLikesB]=useState(()=>load("fs_paar_b",[]));
+  // Aufgabe 3: Portionsrechner
+  const [portions,setPortions]=useState(2);
 
   useEffect(()=>{save("fs_liked",liked);},[liked]);
+  useEffect(()=>{save("fs_tag_scores",tagScores);},[tagScores]);
+  useEffect(()=>{save("fs_paar_mode",paarMode);},[paarMode]);
+  useEffect(()=>{save("fs_paar_person",currentPerson);},[currentPerson]);
+  useEffect(()=>{save("fs_paar_a",paarLikesA);},[paarLikesA]);
+  useEffect(()=>{save("fs_paar_b",paarLikesB);},[paarLikesB]);
   useEffect(()=>{save("fs_history",history);},[history]);
   useEffect(()=>{save("fs_shopping",shoppingList);},[shoppingList]);
   useEffect(()=>{save("fs_checked",checkedItems);},[checkedItems]);
@@ -510,6 +590,7 @@ Regeln:
       if(mood==="Vegetarisch")return r.tags.some(t=>t.toLowerCase().includes("vegetar"));
       if(mood==="Trending")return r.src==="YouTube"||r.src==="TheMealDB";
       if(mood==="Wenig Kalorien")return r.cal<420;
+      if(mood==="Saisonal"){const m=new Date().getMonth();const season=[11,0,1].includes(m)?"winter":[2,3,4].includes(m)?"spring":[5,6,7].includes(m)?"summer":"autumn";const tags={winter:["Winter","Eintopf","Suppe","Braten"],spring:["Frühling","Spargel","Salat","Leicht","Shakshuka","Frühling"],summer:["Sommer","Grill","Bowl","Salat","Erfrischend"],autumn:["Herbst","Kürbis","Eintopf","Pilze"]}[season];return r.tags.some(t=>tags.some(st=>t.toLowerCase().includes(st.toLowerCase())));}
       return true;
     });
     // Deduplicate by normalized name
@@ -520,9 +601,14 @@ Regeln:
       seen2.add(key);
       return true;
     });
-    const unseen=shuffle(list.filter(r=>!seen.includes(String(r.id))));
+    const scored=list.map(r=>({...r,_score:(r.tags||[]).reduce((s,tg)=>s+(tagScores[tg]||0),0)}));
+    scored.sort((a,b)=>b._score-a._score);
+    const top=scored.slice(0,Math.ceil(scored.length*0.3));
+    const rest=scored.slice(Math.ceil(scored.length*0.3));
+    const unseen=shuffle(top.filter(r=>!seen.includes(String(r.id))));
+    const unseenRest=shuffle(rest.filter(r=>!seen.includes(String(r.id))));
     const seenL=shuffle(list.filter(r=>seen.includes(String(r.id))));
-    return [...unseen,...seenL];
+    return [...unseen,...unseenRest,...seenL];
   },[allRecipes,slotType]);
 
   const [moodFilter,setMoodFilter]=useState("Zur Uhrzeit");
@@ -615,6 +701,12 @@ Regeln:
         if(!liked.some(x=>x.name.toLowerCase().replace(/[^a-zäöüß0-9]/g,"")===nameKey)){
           setShoppingList(p=>[...p,...current.ingredients.filter(i=>!p.find(x=>x.name===i.name))]);
           showToast(`❤️ ${trName(current)} ${t("toast_saved")}`);
+          // Aufgabe 4: Tag-Scores lernen
+          setTagScores(prev=>{const s={...prev};(current.tags||[]).forEach(tg=>{s[tg]=(s[tg]||0)+1;});return s;});
+          // Aufgabe 5: Kalorien tracken
+          if(current.cal){setDailyCals(prev=>{const today=new Date().toDateString();const updated={date:today,total:(prev.date===today?prev.total:0)+Number(current.cal)};save("fs_daily_cals",updated);return updated;});}
+          // Aufgabe 6: Paar-Modus
+          if(paarMode){if(currentPerson==="A"){setPaarLikesA(p=>[...p,current.id]);if(paarLikesB.includes(current.id)){showToast(`💞 MATCH! Ihr mögt beide ${trName(current)}!`,"#ff69b4");}setCurrentPerson("B");}else{setPaarLikesB(p=>[...p,current.id]);if(paarLikesA.includes(current.id)){showToast(`💞 MATCH! Ihr mögt beide ${trName(current)}!`,"#ff69b4");}setCurrentPerson("A");}}
         }
       }
       setHistory(p=>[{...current,action:dir},...p].slice(0,50));
@@ -758,13 +850,25 @@ Regeln:
               ))}
             </div>
             {activeTab==="ingredients"&&(
-              <div style={{background:"rgba(255,255,255,0.07)",borderRadius:"18px",padding:"1.1rem",marginBottom:"1rem",border:"1px solid rgba(255,255,255,0.1)"}}>
-                {showIngs.map((ing,i)=>(
-                  <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"0.48rem 0",borderBottom:i<showIngs.length-1?"1px solid rgba(255,255,255,0.06)":"none"}}>
-                    <span style={{fontSize:"0.92rem"}}>{ing.name}</span>
-                    <span style={{background:"rgba(255,255,255,0.1)",borderRadius:"20px",padding:"0.18rem 0.65rem",fontSize:"0.8rem",fontWeight:"700",color:"rgba(255,255,255,0.7)"}}>{ing.amount}</span>
-                  </div>
-                ))}
+              <div>
+                <div style={{display:"flex",alignItems:"center",gap:"0.5rem",marginBottom:"0.8rem",background:"rgba(255,255,255,0.05)",borderRadius:"12px",padding:"0.55rem 1rem",border:"1px solid rgba(255,255,255,0.08)"}}>
+                  <span style={{fontSize:"0.75rem",color:"rgba(255,255,255,0.5)",marginRight:"0.3rem"}}>{t("portions_label")}:</span>
+                  {[1,2,4,6].map(p=>(
+                    <button key={p} onClick={()=>setPortions(p)}
+                      style={{background:portions===p?"linear-gradient(135deg,#ff6b35,#ff9a3c)":"rgba(255,255,255,0.08)",border:"none",borderRadius:"8px",color:"white",padding:"0.35rem 0.7rem",fontSize:"0.8rem",fontWeight:portions===p?"700":"400",cursor:"pointer",fontFamily:"inherit"}}>{p}</button>
+                  ))}
+                </div>
+                <div style={{background:"rgba(255,255,255,0.07)",borderRadius:"18px",padding:"1.1rem",marginBottom:"1rem",border:"1px solid rgba(255,255,255,0.1)"}}>
+                  {showIngs.map((ing,i)=>{
+                    const factor=portions/2;
+                    const scaledAmt=String(ing.amount||"").replace(/([0-9]+[.,]?[0-9]*)/g,n=>{const v=parseFloat(n.replace(",","."));const s=Math.round(v*factor*10)/10;return s%1===0?String(s):String(s);});
+                    return(
+                    <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"0.48rem 0",borderBottom:i<showIngs.length-1?"1px solid rgba(255,255,255,0.06)":"none"}}>
+                      <span style={{fontSize:"0.92rem"}}>{ing.name}</span>
+                      <span style={{background:"rgba(255,255,255,0.1)",borderRadius:"20px",padding:"0.18rem 0.65rem",fontSize:"0.8rem",fontWeight:"700",color:"rgba(255,255,255,0.7)"}}>{scaledAmt}</span>
+                    </div>
+                  );})}
+                </div>
               </div>
             )}
             {activeTab==="steps"&&(
@@ -1207,6 +1311,60 @@ Wichtige Regeln:
           <button onClick={()=>{const inp=document.getElementById("customAllergen");const v=inp?.value?.trim();if(!v)return;if(!selectedAllergens.includes(v)){const n=[...selectedAllergens,v];setSelectedAllergens(n);applyFilter(moodFilter,n);showToast(`✅ "${v}" ${t("toast_allergen_added")}`);}inp.value="";}} style={{background:"linear-gradient(135deg,#ff6b35,#ff9a3c)",border:"none",borderRadius:"10px",color:"white",padding:"0.6rem 1rem",fontSize:"0.85rem",fontWeight:"700",cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap"}}>{t("set_allergen_add")}</button>
         </div>
         <button onClick={()=>{setSeenIds([]);showToast(t("toast_reset"));}} style={{width:"100%",background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:"14px",color:"rgba(255,255,255,0.5)",padding:"0.8rem",cursor:"pointer",fontFamily:"inherit",marginBottom:"0.8rem"}}>{t("set_reset_seen")}</button>
+        {/* AUFGABE 5: Kalorientracker */}
+        <div style={{background:"rgba(255,255,255,0.07)",borderRadius:"16px",padding:"1rem",marginBottom:"1rem",border:"1px solid rgba(255,255,255,0.1)"}}>
+          <div style={{fontSize:"0.62rem",letterSpacing:"2px",color:"rgba(255,107,53,0.9)",marginBottom:"0.6rem"}}>📊 {t("set_cal_title")}</div>
+          <div style={{display:"flex",gap:"0.4rem",marginBottom:"0.8rem"}}>
+            {[1500,1800,2000,2500].map(g=>(
+              <button key={g} onClick={()=>{setCalGoal(g);save("fs_cal_goal",g);}}
+                style={{flex:1,background:calGoal===g?"linear-gradient(135deg,#ff6b35,#ff9a3c)":"rgba(255,255,255,0.08)",border:"none",borderRadius:"8px",color:"white",padding:"0.45rem 0",fontSize:"0.72rem",fontWeight:calGoal===g?"700":"400",cursor:"pointer",fontFamily:"inherit"}}>{g}</button>
+            ))}
+          </div>
+          <div style={{background:"rgba(255,255,255,0.05)",borderRadius:"10px",padding:"0.7rem",position:"relative",overflow:"hidden",marginBottom:"0.5rem"}}>
+            <div style={{position:"absolute",left:0,top:0,bottom:0,width:`${Math.min((dailyCals.total/calGoal)*100,100)}%`,background:"linear-gradient(90deg,rgba(255,107,53,0.4),rgba(255,107,53,0.15))",borderRadius:"10px",transition:"width 0.5s"}}/>
+            <div style={{position:"relative",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <span style={{fontSize:"1.2rem",fontWeight:"800",color:dailyCals.total>calGoal?"#ff6666":"#4ade80"}}>{dailyCals.total} kcal</span>
+              <span style={{fontSize:"0.78rem",color:"rgba(255,255,255,0.4)"}}>/ {calGoal} kcal</span>
+            </div>
+          </div>
+          <button onClick={()=>{const d={date:new Date().toDateString(),total:0};setDailyCals(d);save("fs_daily_cals",d);}} style={{background:"rgba(255,68,68,0.1)",border:"1px solid rgba(255,68,68,0.2)",borderRadius:"10px",color:"rgba(255,120,120,0.7)",padding:"0.4rem 1rem",cursor:"pointer",fontFamily:"inherit",fontSize:"0.75rem"}}>{t("set_cal_reset")}</button>
+        </div>
+
+        {/* AUFGABE 4: Geschmacksprofil */}
+        {Object.keys(tagScores).length>0&&(
+          <div style={{background:"rgba(255,255,255,0.07)",borderRadius:"16px",padding:"1rem",marginBottom:"1rem",border:"1px solid rgba(255,255,255,0.1)"}}>
+            <div style={{fontSize:"0.62rem",letterSpacing:"2px",color:"rgba(255,107,53,0.9)",marginBottom:"0.6rem"}}>🧠 {t("set_taste_profile")}</div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:"0.4rem",marginBottom:"0.6rem"}}>
+              {Object.entries(tagScores).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([tag,score])=>(
+                <span key={tag} style={{background:`rgba(255,107,53,${Math.min(0.1+score*0.05,0.4)})`,border:"1px solid rgba(255,107,53,0.3)",borderRadius:"20px",padding:"0.3rem 0.7rem",fontSize:"0.78rem",color:"white"}}>{tag} <span style={{color:"rgba(255,255,255,0.4)"}}>{score}×</span></span>
+              ))}
+            </div>
+            <button onClick={()=>{setTagScores({});save("fs_tag_scores",{});}} style={{background:"rgba(255,68,68,0.1)",border:"1px solid rgba(255,68,68,0.2)",borderRadius:"10px",color:"rgba(255,120,120,0.7)",padding:"0.4rem 1rem",cursor:"pointer",fontFamily:"inherit",fontSize:"0.75rem"}}>Reset</button>
+          </div>
+        )}
+
+        {/* AUFGABE 6: Paar-Modus */}
+        <div style={{background:"rgba(255,255,255,0.07)",borderRadius:"16px",padding:"1rem",marginBottom:"1rem",border:"1px solid rgba(255,107,157,0.15)"}}>
+          <div style={{fontSize:"0.62rem",letterSpacing:"2px",color:"rgba(255,107,53,0.9)",marginBottom:"0.5rem"}}>👫 {t("set_paar_title")}</div>
+          <div style={{color:"rgba(255,255,255,0.4)",fontSize:"0.78rem",marginBottom:"0.8rem",lineHeight:1.5}}>{t("set_paar_sub")}</div>
+          <button onClick={()=>setPaarMode(p=>!p)}
+            style={{width:"100%",background:paarMode?"linear-gradient(135deg,#ff6b9d,#ff85b3)":"rgba(255,255,255,0.08)",border:`1px solid ${paarMode?"rgba(255,107,157,0.4)":"rgba(255,255,255,0.12)"}`,borderRadius:"12px",color:"white",padding:"0.7rem",fontWeight:"700",cursor:"pointer",fontFamily:"inherit",marginBottom:"0.6rem"}}>
+            {paarMode?t("set_paar_on"):t("set_paar_off")}
+          </button>
+          {paarMode&&(
+            <div>
+              <div style={{display:"flex",gap:"0.5rem",marginBottom:"0.5rem"}}>
+                {["A","B"].map(p=>(
+                  <button key={p} onClick={()=>setCurrentPerson(p)}
+                    style={{flex:1,background:currentPerson===p?"linear-gradient(135deg,#ff6b35,#ff9a3c)":"rgba(255,255,255,0.07)",border:"none",borderRadius:"10px",color:"white",padding:"0.55rem",fontWeight:currentPerson===p?"800":"400",cursor:"pointer",fontFamily:"inherit"}}>Person {p}</button>
+                ))}
+              </div>
+              <div style={{fontSize:"0.72rem",color:"rgba(255,255,255,0.35)",textAlign:"center",marginBottom:"0.5rem"}}>{t("set_paar_person")} {currentPerson} · A: {paarLikesA.length} ❤️ · B: {paarLikesB.length} ❤️</div>
+              <button onClick={()=>{setPaarLikesA([]);setPaarLikesB([]);save("fs_paar_a",[]);save("fs_paar_b",[]);}} style={{background:"rgba(255,68,68,0.1)",border:"1px solid rgba(255,68,68,0.2)",borderRadius:"10px",color:"rgba(255,120,120,0.7)",padding:"0.4rem 1rem",cursor:"pointer",fontFamily:"inherit",fontSize:"0.75rem"}}>{t("set_paar_reset")}</button>
+            </div>
+          )}
+        </div>
+
         <button onClick={()=>{localStorage.removeItem("fs_onboarded");setOnboarded(false);setObStep(0);}} style={{width:"100%",background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:"14px",color:"rgba(255,255,255,0.3)",padding:"0.8rem",cursor:"pointer",fontFamily:"inherit",marginBottom:"2rem"}}>{t("set_redo_onboarding")}</button>
       </div>
       {FONT}
@@ -1227,7 +1385,7 @@ Wichtige Regeln:
       <div style={{position:"relative",zIndex:1,display:"flex",flexDirection:"column",height:"100%"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"max(1rem,env(safe-area-inset-top,1rem)) 1.2rem 0.2rem"}}>
           <button onClick={()=>setScreen("favorites")} style={{background:"rgba(255,255,255,0.12)",backdropFilter:"blur(10px)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:"50px",color:"white",padding:"0.4rem 1rem",cursor:"pointer",fontFamily:"inherit",fontSize:"0.85rem",display:"flex",alignItems:"center",gap:"0.4rem"}}>❤️ <span style={{color:"rgba(255,255,255,0.5)"}}>{liked.length}</span></button>
-          <div style={{display:"flex",alignItems:"center",gap:"0.4rem"}}><img src={LOGO_URL} alt="FoodSwipe" style={{width:28,height:28,borderRadius:6}} onError={e=>{e.target.style.display="none";}}/><span style={{fontSize:"1.1rem",fontWeight:"900",background:"linear-gradient(90deg,#ff6b35,#ffcc02)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>{userName?`Hey ${userName.split(" ")[0]}!`:"FoodSwipe"}</span></div>
+          <div style={{display:"flex",alignItems:"center",gap:"0.4rem",flexDirection:"column"}}>{paarMode&&<div style={{fontSize:"0.6rem",color:"#ff69b4",fontWeight:"700"}}>👫 Person {currentPerson}</div>}<div style={{display:"flex",alignItems:"center",gap:"0.4rem"}}><img src={LOGO_URL} alt="FoodSwipe" style={{width:28,height:28,borderRadius:6}} onError={e=>{e.target.style.display="none";}}/><span style={{fontSize:"1.1rem",fontWeight:"900",background:"linear-gradient(90deg,#ff6b35,#ffcc02)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>{userName?`Hey ${userName.split(" ")[0]}!`:"FoodSwipe"}</span></div></div>
           <div style={{display:"flex",gap:"0.5rem"}}>
             <button onClick={()=>setScreen("shopping")} style={{background:"rgba(255,255,255,0.12)",backdropFilter:"blur(10px)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:"50px",color:"white",padding:"0.4rem 0.85rem",cursor:"pointer",fontSize:"0.95rem",position:"relative"}}>
               🛒{shoppingList.length>0&&<span style={{position:"absolute",top:-4,right:-4,background:"#ff6b35",borderRadius:"50%",width:16,height:16,fontSize:"0.5rem",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:"700"}}>{shoppingList.length}</span>}
