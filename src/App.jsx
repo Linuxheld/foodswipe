@@ -556,12 +556,6 @@ Regeln:
     }catch(e){console.error("Translation error:",e);return null;}
     finally{setTranslating(false);}
   };
-  // Auto-translate when opening detail
-  useEffect(()=>{
-    if(screen==="detail"&&detailRecipe&&needsTranslation(detailRecipe)&&claudeKey&&!transCache[getTransKey(detailRecipe)]){
-      translateRecipe(detailRecipe);
-    }
-  },[screen,detailRecipe,lang]);
   // Helper: get translated name/ingredients if available
   const trName=(recipe)=>transCache[`${lang}_${recipe.id}`]?.name||recipe.name;
   const trIngs=(recipe)=>transCache[`${lang}_${recipe.id}`]?.ingredients||recipe.ingredients;
@@ -624,6 +618,13 @@ Regeln:
   const [toast,setToast]=useState(null);
   const [activeTab,setActiveTab]=useState("ingredients");
   const dragStart=useRef(null);
+
+  // Auto-translate when opening detail (MOVED: must be after screen/detailRecipe useState declarations)
+  useEffect(()=>{
+    if(screen==="detail"&&detailRecipe&&needsTranslation(detailRecipe)&&claudeKey&&!transCache[getTransKey(detailRecipe)]){
+      translateRecipe(detailRecipe);
+    }
+  },[screen,detailRecipe,lang]);
 
   const current=deck[deckIndex%Math.max(deck.length,1)];
   const next=deck[(deckIndex+1)%Math.max(deck.length,1)];
