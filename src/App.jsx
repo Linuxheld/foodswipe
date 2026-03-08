@@ -473,7 +473,6 @@ const LOCAL_RECIPES=[
 
 const ALLERGENS_LIST=["Gluten","Milch","Ei","Nüsse","Fisch","Soja","Schalentiere","Sesam"];
 
-export default function FoodSwipeApp(){ return <ErrorBoundary><FoodSwipe/></ErrorBoundary>; }
 function FoodSwipe(){
   const slot=getSlot(), slotType=slotMap[slot];
 
@@ -1492,3 +1491,5 @@ Wichtige Regeln:
     </div>
   );
 }
+
+export default function FoodSwipeApp(){ return <ErrorBoundary><FoodSwipe/></ErrorBoundary>; }
