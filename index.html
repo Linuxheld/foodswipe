@@ -13,14 +13,26 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/svg+xml" href="/foodswipe-icon.svg" />
     <meta name="description" content="Swipe dich zu deinem nächsten Lieblingsgericht" />
-    <title>FoodSwipe 🍽️</title>
+    <title>FoodSwipe</title>
     <style>
-      html { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
-      body { margin: 0; background: #07070f; }
+      html{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+      body{margin:0;background:#07070f}
+      #loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;color:white;font-family:system-ui;z-index:9999;background:#07070f}
+      #loading.hidden{display:none}
+      #loading h2{font-size:1.5rem;margin:0;background:linear-gradient(90deg,#ff6b35,#ffcc02);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+      #loading p{color:rgba(255,255,255,0.4);font-size:0.85rem;margin-top:0.5rem}
+      .spinner{width:32px;height:32px;border:3px solid rgba(255,107,53,0.2);border-top-color:#ff6b35;border-radius:50%;animation:spin .8s linear infinite;margin-bottom:1rem}
+      @keyframes spin{to{transform:rotate(360deg)}}
     </style>
   </head>
   <body>
+    <div id="loading"><div class="spinner"></div><h2>FoodSwipe</h2><p>Wird geladen...</p></div>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      const obs=new MutationObserver(()=>{if(document.getElementById('root')?.children.length>0){document.getElementById('loading')?.classList.add('hidden');obs.disconnect();}});
+      obs.observe(document.getElementById('root'),{childList:true});
+      setTimeout(()=>{const el=document.getElementById('loading');if(el&&!el.classList.contains('hidden')){el.innerHTML='<div style="text-align:center;padding:2rem"><h2 style="color:#ff6b35;font-size:1.3rem">App konnte nicht geladen werden</h2><p style="color:rgba(255,255,255,0.5);font-size:0.85rem;margin-top:0.5rem">Bitte Screenshot der Browser-Konsole senden</p><button onclick="localStorage.clear();location.reload()" style="background:#ff6b35;color:white;border:none;border-radius:12px;padding:0.8rem 1.5rem;font-size:0.9rem;cursor:pointer;margin-top:1rem">Reset und Neu laden</button></div>';}},8000);
+    </script>
   </body>
 </html>

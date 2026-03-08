@@ -1,4 +1,24 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, Component } from "react";
+
+// Error Boundary to catch crashes and show error instead of black screen
+class ErrorBoundary extends Component {
+  constructor(props) { super(props); this.state = { hasError: false, error: null }; }
+  static getDerivedStateFromError(error) { return { hasError: true, error }; }
+  componentDidCatch(error, info) { console.error("FoodSwipe crash:", error, info); }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{minHeight:"100vh",background:"#07070f",color:"white",padding:"2rem",fontFamily:"system-ui"}}>
+          <h1 style={{color:"#ff6b35"}}>⚠️ FoodSwipe Fehler</h1>
+          <p>Die App ist abgestürzt. Bitte Screenshot an Mischa senden:</p>
+          <pre style={{background:"rgba(255,255,255,0.1)",padding:"1rem",borderRadius:"12px",overflow:"auto",fontSize:"0.8rem",whiteSpace:"pre-wrap"}}>{String(this.state.error)}</pre>
+          <button onClick={()=>{localStorage.clear();window.location.reload();}} style={{background:"#ff6b35",color:"white",border:"none",borderRadius:"12px",padding:"1rem 2rem",fontSize:"1rem",cursor:"pointer",marginTop:"1rem"}}>🔄 App zurücksetzen & neu laden</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 const shuffle = arr => { const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
 const getSlot = () => { const h=new Date().getHours(); if(h>=6&&h<11)return"morning"; if(h>=11&&h<15)return"lunch"; if(h>=15&&h<18)return"snack"; return"dinner"; };
@@ -453,7 +473,8 @@ const LOCAL_RECIPES=[
 
 const ALLERGENS_LIST=["Gluten","Milch","Ei","Nüsse","Fisch","Soja","Schalentiere","Sesam"];
 
-export default function FoodSwipe(){
+export default function FoodSwipeApp(){ return <ErrorBoundary><FoodSwipe/></ErrorBoundary>; }
+function FoodSwipe(){
   const slot=getSlot(), slotType=slotMap[slot];
 
   const [lang,setLang]=useState(()=>load("fs_lang","de"));
